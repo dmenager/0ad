@@ -2,8 +2,23 @@
 (ql:quickload :flexi-streams)
 (ql:quickload :cl-store)
 
-(defvar *STATES* '())
-(defvar *ACTIONS* '())
+(defstruct mdpr 
+  (states '() :type list) 
+  (actions '() :type list) 
+  (t-graph :include graph) 
+  (gamma 0.0 :type short-float))
+
+; consider changing this to a hash table of states to action
+(defstruct graph (nodes '() :type list))
+
+(defstruct node 
+  (name 0 :type integer)
+  (value '() :type list)
+  (edges '() :type list))
+
+(defstruct edge  
+  (to 0 :type integer)
+  (probability 0.00 :type short-float))
 
 (defun tcp-server (port) 
   (let ((socket (usocket:socket-listen usocket:*wildcard-host*
@@ -22,8 +37,6 @@
   (let ((line (read-line stream nil 'the-end)))
     (format t "Handling request ~%")
     (format t "You said: ~S~%" line))
-    ;(format stream "~A~%" (meanings (to-syms line)))
-    ;(format t "Perception: ~A~%~%" (meanings (to-syms line))))
   (force-output stream))
 
 (defun to-syms (inp)
@@ -34,29 +47,51 @@
 	(push word syms)))
     (reverse syms)))
 
+#| Initialize MDP and expert's feature expectations|#
+
+; init-file = states, actions, transition probabilities, m trajectories
+; return reward function   
+(defun init-apprentice (init-file)
+  ; fill state space
+  
+  ; fill action space
+  
+  ; create transition probabilites
+  
+  ; create MDP/R
+  (let ((mdp-r (make-mdpr :states *STATES*
+			  :actions *ACTIONS*
+			  :t-graph (make-graph :nodes (make-node)))))
+
+  ; create expert's feature expectations
+
+  ;return reward function
+  ))
+
 #|Discovers reward function|#
 
-; mdpr = mdp w/o reward funtion
+; mdpr = mdp w/o reward funtion -- simulator
 ; phi = feature mapping -- (state -> state features)
 ; mue = expert's feature expectations
 ; returns reward
-(defun discover-r (mdpr phi mue)
+(defun discover-reward (mdpr phi mue)
   
   (let ((p (make-hash-table)))
     ;add elements to p
     (map '() 
 	 #'(lambda (state)	    
 	    (setf (gethash state p) 
-		  (nth (+ 1 (random (length *ACTIONS*))) 
-		       *ACTIONS*))
-	    )
+		  (nth (+ 1 (random (length (mdpr-actions mdpr))))) 
+		       (mdpr-actions mdpr)))
 	 *STATES*)
     (mu p)))
 
 #|Compute feature expectation of policy, pi|#
 
+; mdpr = MDP simulator
 ; p = policy
-(defun mu (p)
+; returns feature expectations of p
+(defun mu (mdpr p)
   ;expected value of the sum of the discount * phi
   (let* ((err .01)
 	 (gamma .5)
