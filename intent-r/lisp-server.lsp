@@ -6,8 +6,8 @@
 (defvar *thread-variables* '())
 
 (defstruct node 
-  (name 0 :type integer)
-  (value '() :type list)
+  (state-name 0 :type integer)
+  (state '() :type list)
   (edges '() :type list))
 
 ; consider changing this to a hash table of states to action
@@ -20,7 +20,21 @@
 
 (defstruct edge  
   (to 0 :type integer)
+  (option-name 'nil :type symbol)
   (probability 0.00 :type short-float))
+
+(defstruct option 
+  (name 'nil :type symbol)
+  (policy '() :type list)
+  (termination-conditions '() :type list))
+
+(defstruct term-cond
+  (state-name 'nil :type symbol)
+  (termination-prob 0.00 :type short-float))
+
+(defstruct state
+  (name '() :type integer)
+  (data '() :type list))
 
 (defun tcp-test-client (port)
   (setq conn (usocket:socket-connect usocket:*wildcard-host* port)))
@@ -48,7 +62,7 @@
 		(setq *thread-variables* 
 		      (append *thread-variables* (list (list '() t))))
 		
-					; handle the request on thread and let main accept new clients
+		; handle the request on thread and let main accept new clients
 		(sb-thread:make-thread 
 		 (lambda(std-out cnt)
 		   (let* ((*standard-output* std-out)
@@ -61,14 +75,21 @@
 				      (setf (second (nth cnt *thread-variables*)) '())
 				      (setf (first (nth cnt *thread-variables*)) '())))))
 		     
-		     (trivial-timers:schedule-timer timer 60)
+		     ; 5 minute timeout
+		     (trivial-timers:schedule-timer timer (* 5 60))
 		     
 		     (loop while (not (null (second (nth cnt *thread-variables*)))) do
 			  (handle-request stream cnt std-out timer)
 			  (clear-input stream)))) 
 		 :arguments (list *standard-output* thread-index))
 		(incf count))))
-	   (usocket:socket-close socket))))
+      (progn
+	; wait for data to implement message handlers before the next 2 lines
+	;(format stream "Connection closed due to inactivity.~%")
+	;(force-output stream)
+	(clear-input stream)
+	(clear-output stream)
+	(usocket:socket-close socket)))))
 
 #| Service a request from a client |#
 
@@ -77,7 +98,7 @@
 ; ostream = reference to standard out
 ; timer = timeout timer 
 (defun handle-request (stream t-idx ostream timer)
-  (trivial-timers:schedule-timer timer 60)
+  (trivial-timers:schedule-timer timer (* 5 60))
   (let ((line (read-line stream nil 'the-end))
 	(*standard-output* ostream))
     (setf (first (nth t-idx *thread-variables*)) t)
@@ -99,21 +120,86 @@
 ; init-file = states, actions, transition probabilities, m trajectories
 ; return reward function   
 (defun init-apprentice (init-file)
-  ; fill state space
-  
-  ; fill action space
-  
-  ; create transition probabilites
   
   ; create MDP/R
-  (let ((mdp-r (make-mdpr :states *STATES*
-			  :actions *ACTIONS*
-			  :t-graph (make-graph :nodes (make-node)))))
-
+  (let ((mdp-r (make-mdpr :states '()
+			  :actions '()
+			  :nodes '())))
+    
+  ; fill state/action space
+  (setf (mdpr-states mdp-r) (make-state-space '()))
+  (setf (mdpr-actions mdp-r) (make-action-space '()))
+  
+  ; create transition probabilites
+  (make-nodes mdp-r)
   ; create expert's feature expectations
 
   ;return reward function
-  ))
+  (format t "~A~%" mdp-r)))
+
+#| Define the state space for the MDP |#
+
+; states = state list to fill
+(defun make-state-space (states)
+  (with-open-file (client-data "testStates.txt"
+			       :direction :input
+			       :if-does-not-exist :error)
+    (let ((count 0))
+      
+      (do ((line (read-line client-data nil) 
+		 (read-line client-data nil)))
+	  ((null line))
+	(let ((list (to-syms line)))
+	  (setq states (reverse (cons (make-state :name count :data list)
+				      (reverse states)))))
+	(incf count)))
+    states))
+
+#| Define action space for MDP |#
+
+; actions = action list to fill
+; TODO: Use proper termination condition probabilities
+(defun make-action-space (actions)
+  ;open server client file
+  (with-open-file (client-data "testInit.txt"
+			       :direction :input
+			       :if-does-not-exist :error)
+    
+    (do ((line (read-line client-data nil) 
+	       (read-line client-data nil)))
+	((null line))
+      (let* ((list (first (to-syms line)))
+	     (op (make-option :name (first list) 
+			      :policy (second list) 
+			      :termination-conditions '())))
+	(map '() 
+	     #'(lambda (state)
+		 (setf (option-termination-conditions op) 
+		       (reverse (cons (make-term-cond :state-name state) 
+			     (reverse (option-termination-conditions op))))))
+	     (third list))
+	(setq actions (reverse (cons op (reverse actions)))))))
+  actions)
+
+#| build transition graph |#
+
+; mdpr = mdpr simulation
+(defun make-nodes (mdpr)
+  ; make a node for each state
+  (let ((count 0))
+    (map '() 
+	 #'(lambda (s)
+	       (setf (mdpr-nodes mdpr) 
+		     (reverse (cons (make-node :state-name count :state (state-data s)) 
+				    (reverse (mdpr-nodes mdpr)))))
+	     (incf count))
+	 (mdpr-states mdpr))))
+
+#| Assign the transition probabilities for each node |#
+
+; TODO: figure real transition probabilities
+; TODO: (edge-to)
+(defun make-transition-probs (mdpr))
 
 #| Discovers reward function |#
 
@@ -159,7 +245,9 @@
 #| Get a random percent |#
 
 (defun random-percent ()
-  (/ (+ 0 (random (+ 1 (- 1 0))))) 100)
+  (/ (+ 0 (random (+ 1 (- 100 0)))) 100))
+
+#| Simulate an action in the MDP-R|#
 
 ; p = policy
 ; returns state
