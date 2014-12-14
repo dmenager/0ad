@@ -11,7 +11,10 @@
   (edges '() :type list))
 
 ; consider changing this to a hash table of states to action
-(defstruct graph (nodes '() :type list))
+(defstruct graph 
+  (nodes '() :type list)
+  (cur-state 0 :type integer)
+  (start-state 0 :type integer))
 
 (defstruct (mdpr (:include graph)) 
   (states '() :type list) 
@@ -124,7 +127,9 @@
   ; create MDP/R
   (let ((mdp-r (make-mdpr :states '()
 			  :actions '()
-			  :nodes '())))
+			  :nodes '()
+			  :cur-state 0
+			  :start-state 0)))
     
   ; fill state/action space
   (setf (mdpr-states mdp-r) (make-state-space '()))
@@ -135,7 +140,9 @@
   ; create expert's feature expectations
 
   ;return reward function
-  (format t "~A~%" mdp-r)))
+  (format t "MDP/R:~A~%" mdp-r)
+  
+  (discover-reward mdp-r '() '())))
 
 #| Define the state space for the MDP |#
 
@@ -213,11 +220,12 @@
     ;add elements to p
     (map '() 
 	 #'(lambda (state)	    
-	    (setf (gethash state p) 
-		  (nth (+ 1 (random (length (mdpr-actions mdpr))))) 
-		       (mdpr-actions mdpr)))
-	 *STATES*)
-    (mu p)))
+	    (setf (gethash (state-name state) p) 
+		  (nth (+ 1 (random (length (mdpr-actions mdpr)))) 
+		       (mdpr-actions mdpr))))
+	 (mdpr-states mdpr))
+    (format t "Pi: ~A~%" p)))
+    ;(mu p)))
 
 #| Compute feature expectation of policy, pi |#
 
@@ -250,8 +258,10 @@
 #| Simulate an action in the MDP-R|#
 
 ; p = policy
+; mdpr = mdpr
 ; returns state
-(defun act (p) )
+(defun act (p mdpr) 
+  )
 
 
 #| SCRATCH 
