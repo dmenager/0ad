@@ -49,6 +49,7 @@
 (defun tcp-server (port) 
   ; clear residual thread variables
   (setq *thread-variables* '())
+ 
   (let ((socket (usocket:socket-listen usocket:*wildcard-host*
 				       port
 				       :reuse-address t))
@@ -61,37 +62,34 @@
 	      (let* ((connection (usocket:socket-accept socket))
 		     (stream (usocket:socket-stream connection))
 		     (thread-index count))
+		
 		(format *standard-output* "Connection made to client ~%")
 		(setq *thread-variables* 
 		      (append *thread-variables* (list (list '() t))))
-		
-		; handle the request on thread and let main accept new clients
-		(sb-thread:make-thread 
-		 (lambda(std-out cnt)
-		   (let* ((*standard-output* std-out)
-			  (timer (trivial-timers:make-timer 
-				  #'(lambda ()
-				      (format *standard-output* 
-					      "Connection timeout. Closing ~A.~%" 
-					      connection)
-				      (usocket:socket-close connection)	 
-				      (setf (second (nth cnt *thread-variables*)) '())
-				      (setf (first (nth cnt *thread-variables*)) '())))))
+		  ; handle the request on thread and let main accept new clients
+		  (sb-thread:make-thread 
+		   (lambda(std-out cnt)
+		     (let* ((*standard-output* std-out)
+			    (timer (trivial-timers:make-timer 
+				    #'(lambda ()
+					(format *standard-output* 
+						"Connection timeout. Closing ~A.~%" 
+						connection)
+					(usocket:socket-close connection)	 
+					(setf (second (nth cnt *thread-variables*)) '())
+					(setf (first (nth cnt *thread-variables*)) '())))))
+		       
+		       ; 5 minute timeout
+		       (trivial-timers:schedule-timer timer (* 5 60))
 		     
-		     ; 5 minute timeout
-		     (trivial-timers:schedule-timer timer (* 5 60))
-		     
-		     (loop while (not (null (second (nth cnt *thread-variables*)))) do
-			  (handle-request stream cnt std-out timer)
-			  (clear-input stream)))) 
-		 :arguments (list *standard-output* thread-index))
-		(incf count))))
+		       (loop while (not (null (second (nth cnt *thread-variables*)))) do
+			    (handle-request stream cnt std-out timer)
+			    (clear-input stream)))) 
+		   :arguments (list *standard-output* thread-index))
+		  (incf count))))
       (progn
 	; wait for data to implement message handlers before the next 2 lines
 	;(format stream "Connection closed due to inactivity.~%")
-	;(force-output stream)
-	(clear-input stream)
-	(clear-output stream)
 	(usocket:socket-close socket)))))
 
 #| Service a request from a client |#
@@ -102,12 +100,20 @@
 ; timer = timeout timer 
 (defun handle-request (stream t-idx ostream timer)
   (trivial-timers:schedule-timer timer (* 5 60))
-  (let ((line (read-line stream nil 'the-end))
-	(*standard-output* ostream))
-    (setf (first (nth t-idx *thread-variables*)) t)
-    (format *standard-output* "Handling request ~%")
-    (format *standard-output* "You said: ~S~%" line))
-  (force-output stream))
+  (with-open-file (clientData (concatenate 'string 
+					   "clientData/clientData"
+					   (write-to-string t-idx) ".txt")
+			      :direction :output
+			      :if-exists :append
+			      :if-does-not-exist :create)
+    (let ((line (read-line stream nil 'the-end))
+	  (*standard-output* ostream))
+      (setf (first (nth t-idx *thread-variables*)) t)
+      (format *standard-output* "Handling request ~%")
+      (format *standard-output* "You said: ~S~%" line)
+      (format clientData "You said: ~S~%" line))
+    (force-output stream)
+    (force-output clientData)))
 
 
 (defun to-syms (inp)
