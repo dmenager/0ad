@@ -1,9 +1,21 @@
 (ql:quickload :usocket)
-(ql:quickload :flexi-streams)
-(ql:quickload :cl-store)
 (ql:quickload :trivial-timers)
 
 (defvar *thread-variables* '())
+(defvar *atomic-actions* '((attack '()) 
+			   (barter with '()) 
+			   (create '()) 
+			   (escort '()) 
+			   (gather '()) 
+			   (graze on '()) 
+			   (heal '()) 
+			   (lock '()) 
+			   (loot '()) 
+			   (move '()) 
+			   (patrol '()) 
+			   (repair '()) 
+			   (scout '()) 
+			   (trade '())))
 
 (defstruct node 
   (state-name 0 :type integer)
@@ -38,6 +50,9 @@
 (defstruct state
   (name '() :type integer)
   (data '() :type list))
+
+(defstruct action
+  (sub-actions '() :type list))
 
 (defun tcp-test-client (port)
   (setq conn (usocket:socket-connect usocket:*wildcard-host* port)))
@@ -139,16 +154,17 @@
     
   ; fill state/action space
   (setf (mdpr-states mdp-r) (make-state-space '()))
-  (setf (mdpr-actions mdp-r) (make-action-space '()))
+  (setf (mdpr-actions mdp-r) (subsets *atomic-actions* (mdpr-actions mdp-r)))
   
   ; create transition probabilites
   (make-nodes mdp-r)
   ; create expert's feature expectations
 
   ;return reward function
-  (format t "MDP/R:~A~%" mdp-r)
+  mdp-r
   
-  (discover-reward mdp-r '() '())))
+  ;(discover-reward mdp-r '() '())
+  ))
 
 #| Define the state space for the MDP |#
 
@@ -172,7 +188,7 @@
 
 ; actions = action list to fill
 ; TODO: Use proper termination condition probabilities
-(defun make-action-space (actions)
+(defun make-action-space-2 (actions)
   ;open server client file
   (with-open-file (client-data "testInit.txt"
 			       :direction :input
@@ -194,13 +210,33 @@
 	(setq actions (reverse (cons op (reverse actions)))))))
   actions)
 
+
+(defun make-action-space (list)
+  (subsets *atomic-actions* list))
+
+(defun subsets (list into)
+  (let ((len (length list)))
+    (do ((counter 0 (1+ counter)))
+	((>= counter len))
+      (do ((counter2 counter (1+ counter2)))
+	  ((>= counter2 len))
+	(setq into
+	      (reverse (cons (sublist list counter counter2)
+			     into)))))
+    into))
+(defun sublist (list start end)
+  (if (or (null list) (> start (length list)) (> end (length list)) (> start end))
+      '()
+      (let ((sub (loop for x from start to end
+		    collect (nth x list))))
+	sub)))
 #| build transition graph |#
 
 ; mdpr = mdpr simulation
 (defun make-nodes (mdpr)
   ; make a node for each state
   (let ((count 0))
-    (map '() 
+    (map 'list 
 	 #'(lambda (s)
 	       (setf (mdpr-nodes mdpr) 
 		     (reverse (cons (make-node :state-name count :state (state-data s)) 
