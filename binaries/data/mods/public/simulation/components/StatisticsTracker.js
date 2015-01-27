@@ -124,7 +124,7 @@ StatisticsTracker.prototype.Init = function()
 StatisticsTracker.prototype.GetNumUnitsTrained = function()
 {
 	
-	return this.unitsTrained;
+	return this.unitsTrained.total;
 };
 
 StatisticsTracker.prototype.GetStatistics = function()
