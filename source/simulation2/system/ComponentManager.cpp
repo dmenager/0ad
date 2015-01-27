@@ -936,23 +936,23 @@ void CComponentManager::FlushDestroyedComponents()
 	}
 }
 
-int32_t CComponentManager::getNumPlayers()
+int32_t CComponentManager::cGetUnitsTrained()
 {
 	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
 
 	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
 	{
 		//find playerManager component 
-		if( cit->first == 91)
+		if( cit->first == 79)
 		{
-			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.lower_bound(2);
+			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
 			if (eit == cit->second.end())
 			{
 				debug_warn(L"Invalid eit"); // this should never happen
 				return false;
 			}
-			ICmpStatisticsTracker* bit = (ICmpStatisticsTracker*) eit->second;
-			return bit->GetNumWood();
+			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
+			return bit->GetNumUnitsTrained();
 		}
 	}
 }

@@ -79,8 +79,6 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	std::stringstream simStateStream;
 	if (!simulation.SerializeState(simStateStream))
 		WARN_RETURN(ERR::FAIL);
-	if (!simulation.DeserializeState(simStateStream))
-		WARN_RETURN(ERR::FAIL);
 
 	JS::RootedValue metadata(cx);
 	simulation.GetScriptInterface().Eval("({})", &metadata);
@@ -117,8 +115,8 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 
 	//test component stuff
 	std::ofstream myfile;
-	myfile.open ("C:\\Users\\Charles\\Documents\\My Games\\0ad\\saves\\numPlayers.txt");
-	myfile << "Units Lost\n";	
+	myfile.open ("C:\\0adtestdata\\0adtestdata.txt");
+	myfile << "Units trained\n";	
 
 	//simulation.SerializeState(myfile);
 
@@ -130,7 +128,7 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 		myfile << '\n';
 	}*/
 
-	int32_t numPLayers = simulation.getComponentName();
+	int32_t numPLayers = simulation.getUnitsTrained();
 	myfile << std::to_string((_Longlong) numPLayers);
 
 	myfile.close();

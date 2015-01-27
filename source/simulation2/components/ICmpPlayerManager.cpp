@@ -40,6 +40,11 @@ public:
 		return m_Script.Call<int32_t>("GetNumPlayers");
 	}
 
+	virtual int32_t GetNumUnitsTrained()
+	{
+		return m_Script.Call<int32_t>("GetPlayerUnitsTrained");
+	}
+
 	virtual entity_id_t GetPlayerByID(int32_t id)
 	{
 		return m_Script.Call<entity_id_t>("GetPlayerByID", (int)id);

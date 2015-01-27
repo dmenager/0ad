@@ -132,7 +132,7 @@ public:
 	/**
 	 * get the componenet name associated with the given cid
 	 */
-	int32_t getComponentName();
+	int32_t getUnitsTrained();
 
 	/**
 	 * Reload any scripts that were loaded from the given filename.
