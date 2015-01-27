@@ -936,7 +936,7 @@ void CComponentManager::FlushDestroyedComponents()
 	}
 }
 
-int32_t CComponentManager::cGetUnitsTrained()
+int32_t CComponentManager::cGetPlayerStates()
 {
 	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
 
@@ -952,7 +952,36 @@ int32_t CComponentManager::cGetUnitsTrained()
 				return false;
 			}
 			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
-			return bit->GetNumUnitsTrained();
+
+			int32_t numPlayers = bit->GetNumPlayers();
+
+			//if first time then generate the outside player vectors
+			if( m_makeOutside )
+			{
+				for (int i = 1; i < numPlayers; i ++)
+				{
+					m_playerStateTables.push_back( std::vector<std::vector<int32_t>>() );
+				}
+				m_makeOutside = false;
+			}
+
+			//Collect state info for each player, 1 to n
+			//player 0 is not a real player so do not collect thier info.
+			for( int i = 1; i < numPlayers; i++ )
+			{
+				m_playerStateTables[i].push_back( std::vector<int32_t>() );
+
+				//add the state number in the first spot
+				m_playerStateTables[i][m_playerStateTables.size()-1].push_back( m_playerStateTables.size()-1 );
+
+				//gather each feature data from statsTracker
+				for( int j = 1; j < NUM_FEATURES; j++ )
+				{
+					m_playerStateTables[i][m_playerStateTables.size()-1].push_back( bit->GetPlayerData( i, j ) );
+				}
+			}
+
+			//return bit->GetNumUnitsTrained();
 		}
 	}
 }

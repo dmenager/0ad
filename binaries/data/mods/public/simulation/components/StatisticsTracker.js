@@ -127,6 +127,80 @@ StatisticsTracker.prototype.GetNumUnitsTrained = function()
 	return this.unitsTrained.total;
 };
 
+StatisticsTracker.prototype.GetPlayerData = function( feature )
+{
+
+	switch ( feature ) {
+	case 1:
+		return this.resourcesGathered.food + this.resourcesBought.food - this.resourcesUsed.food - this.resourcesSold.food + 300;
+		break;
+	case 2:
+		return this.resourcesGathered.wood + this.resourcesBought.wood - this.resourcesUsed.wood - this.resourcesSold.wood + 300;
+		break;
+	case 3:
+		return this.resourcesGathered.stone + this.resourcesBought.stone - this.resourcesUsed.stone - this.resourcesSold.stone + 300;
+		break;
+	case 4:
+		return this.resourcesGathered.iron + this.resourcesBought.iron - this.resourcesUsed.iron - this.resourcesSold.iron + 300;
+		break;
+	case 5:
+		return this.unitsTrained.Infantry - this.unitsLost.Infantry + 4;
+		break;
+	case 6:
+		return this.unitsTrained.Worker - this.unitsLost.Worker + 8;
+		break;
+	case 7:
+		return this.unitsTrained.Female - this.unitsLost.Female + 4;
+		break;
+	case 8:
+		return this.unitsTrained.Cavalry - this.unitsLost.Cavalry + 1;
+		break;
+	case 9:
+		return this.unitsTrained.Champion - this.unitsLost.Champion;
+		break;
+	case 10:
+		return this.unitsTrained.Hero - this.unitsLost.Hero;
+		break;
+	case 11:
+		return this.unitsTrained.Ship - this.unitsLost.Ship;
+		break;
+	case 12:
+		return this.buildingsConstructed.House - this.buildingsDestroyed.House;
+		break;
+	case 13:
+		return this.buildingsConstructed.Economic - this.buildingsDestroyed.Economic;
+		break;
+	case 14:
+		return this.buildingsConstructed.Outpost - this.buildingsDestroyed.Outpost;
+		break;
+	case 15:
+		return this.buildingsConstructed.Military - this.buildingsDestroyed.Military;
+		break;
+	case 16:
+		return this.buildingsConstructed.Fortress - this.buildingsDestroyed.Fortress;
+		break;
+	case 17:
+		return this.buildingsConstructed.CivCentre - this.buildingsDestroyed.CivCentre + 1;
+		break;
+	case 18:
+		return this.buildingsConstructed.Wonder - this.buildingsDestroyed.Wonder;
+		break;
+	case 19:
+		return this.enemyUnitsKilled.total;
+		break;
+	case 20:
+		return this.enemyBuildingsDestroyed;
+		break;
+	case 21:
+		return this.unitsLost.total;
+		break;
+	case 22:
+		return this.buildingsLost.total;
+		break;
+}	
+	//return this.unitsTrained.total;
+};
+
 StatisticsTracker.prototype.GetStatistics = function()
 {
 	return {

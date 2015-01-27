@@ -45,6 +45,11 @@ public:
 		return m_Script.Call<int32_t>("GetPlayerUnitsTrained");
 	}
 
+	virtual int32_t GetPlayerData( int32_t player, int32_t feature )
+	{
+		return m_Script.Call<int32_t>("GetPlayerData", player, feature );
+	}
+
 	virtual entity_id_t GetPlayerByID(int32_t id)
 	{
 		return m_Script.Call<entity_id_t>("GetPlayerByID", (int)id);

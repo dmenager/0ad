@@ -93,8 +93,11 @@ public:
 	 */
 	bool LoadScript(const VfsPath& filename, bool hotload = false);
 
-	//DC test function to get script data
-	int32_t cGetUnitsTrained();
+	/**DC
+	*  This will be called every timing interval to add the player's latest state information into the 
+	*  playersStateTables vector. 
+	*/
+	int32_t cGetPlayerStates();
 
 	void RegisterMessageType(MessageTypeId mtid, const char* name);
 
@@ -323,6 +326,15 @@ private:
 	std::map<std::string, MessageTypeId> m_MessageTypeIdsByName;
 	std::map<MessageTypeId, std::string> m_MessageTypeNamesById;
 	std::map<std::string, InterfaceId> m_InterfaceIdsByName;
+
+	//DC
+	//player state vector
+	//Outside Vector - each player in game - size 6 ( up to six players )
+	//Middle vecotr - table of states - size n ( n number of states per game )
+	//Inner Vector - individual states - size = number of features;
+	std::vector<std::vector<std::vector<int32_t>>> m_playerStateTables;
+	int32_t const NUM_FEATURES = 8;
+	bool m_makeOutside : true;
 
 	std::map<MessageTypeId, CDynamicSubscription> m_DynamicMessageSubscriptionsNonsync;
 	std::map<IComponent*, std::set<MessageTypeId> > m_DynamicMessageSubscriptionsNonsyncByComponent;

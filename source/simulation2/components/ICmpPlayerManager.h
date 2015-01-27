@@ -32,6 +32,8 @@ public:
 
 	virtual int32_t GetNumUnitsTrained() = 0;
 
+	virtual int32_t GetPlayerData( int32_t player, int32_t feature ) = 0;
+
 	virtual entity_id_t GetPlayerByID(int32_t id) = 0;
 
 	DECLARE_INTERFACE_TYPE(PlayerManager)
