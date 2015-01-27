@@ -26,6 +26,8 @@
 
 #include "simulation2/MessageTypes.h"
 #include "simulation2/components/ICmpTemplateManager.h"
+#include "simulation2/components/ICmpPlayerManager.h"
+#include "simulation2/components/ICmpStatisticsTracker.h"
 
 #include "lib/utf8.h"
 #include "ps/CLogger.h"
@@ -930,6 +932,27 @@ void CComponentManager::FlushDestroyedComponents()
 			{
 				ifcit->erase(ent);
 			}
+		}
+	}
+}
+
+int32_t CComponentManager::getNumPlayers()
+{
+	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
+
+	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
+	{
+		//find playerManager component 
+		if( cit->first == 91)
+		{
+			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.lower_bound(2);
+			if (eit == cit->second.end())
+			{
+				debug_warn(L"Invalid eit"); // this should never happen
+				return false;
+			}
+			ICmpStatisticsTracker* bit = (ICmpStatisticsTracker*) eit->second;
+			return bit->GetNumWood();
 		}
 	}
 }

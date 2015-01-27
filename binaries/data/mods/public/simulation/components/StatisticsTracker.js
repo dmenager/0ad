@@ -121,6 +121,14 @@ StatisticsTracker.prototype.Init = function()
 	this.treasuresCollected = 0;
 };
 
+StatisticsTracker.prototype.GetNumUnitsLost = function()
+{
+	
+	return {
+		"unitsLost": this.unitsLost
+};
+};
+
 StatisticsTracker.prototype.GetStatistics = function()
 {
 	return {

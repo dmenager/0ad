@@ -258,6 +258,8 @@ int CSimulation2Impl::ProgressiveLoad()
 	return ret;
 }
 
+
+
 void CSimulation2Impl::DumpSerializationTestState(SerializationTestState& state, const OsPath& path, const OsPath::String& suffix)
 {
 	if (!state.hash.empty())
@@ -781,6 +783,14 @@ void CSimulation2::LoadMapSettings()
 int CSimulation2::ProgressiveLoad()
 {
 	return m->ProgressiveLoad();
+}
+
+//std::string CSimulation2::getComponentName(int cid)
+int32_t CSimulation2::getComponentName()
+{
+	//return m->m_ComponentManager.LookupComponentTypeName(cid);
+	return m->m_ComponentManager.getNumPlayers();
+
 }
 
 Status CSimulation2::ReloadChangedFile(const VfsPath& path)

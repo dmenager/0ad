@@ -130,6 +130,11 @@ public:
 	int ProgressiveLoad();
 
 	/**
+	 * get the componenet name associated with the given cid
+	 */
+	int32_t getComponentName();
+
+	/**
 	 * Reload any scripts that were loaded from the given filename.
 	 * (This is used to implement hotloading.)
 	 */

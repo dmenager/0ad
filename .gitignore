@@ -9,6 +9,7 @@ binaries/system/pyrogenesis.pdb
 *.so
 *.so.*
 *.a
+binaries/system
 binaries/system/ActorEditor
 binaries/system/pyrogenesis
 binaries/system/test
@@ -16,6 +17,7 @@ binaries/system/ActorEditor_dbg
 binaries/system/pyrogenesis_dbg
 binaries/system/test_dbg
 
+build/
 build/workspaces/gcc/
 build/workspaces/codeblocks/
 build/premake/premake4/bin/release/premake4

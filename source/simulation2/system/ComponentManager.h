@@ -93,6 +93,9 @@ public:
 	 */
 	bool LoadScript(const VfsPath& filename, bool hotload = false);
 
+	//DC test function to get script data
+	int32_t getNumPlayers();
+
 	void RegisterMessageType(MessageTypeId mtid, const char* name);
 
 	void RegisterComponentType(InterfaceId, ComponentTypeId, AllocFunc, DeallocFunc, const char*, const std::string& schema);

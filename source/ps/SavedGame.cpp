@@ -79,6 +79,8 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	std::stringstream simStateStream;
 	if (!simulation.SerializeState(simStateStream))
 		WARN_RETURN(ERR::FAIL);
+	if (!simulation.DeserializeState(simStateStream))
+		WARN_RETURN(ERR::FAIL);
 
 	JS::RootedValue metadata(cx);
 	simulation.GetScriptInterface().Eval("({})", &metadata);
@@ -112,6 +114,27 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	PIArchiveWriter archiveWriter = CreateArchiveWriter_Zip(tempSaveFileRealPath, false);
 	if (!archiveWriter)
 		WARN_RETURN(ERR::FAIL);
+
+	//test component stuff
+	std::ofstream myfile;
+	myfile.open ("C:\\Users\\Charles\\Documents\\My Games\\0ad\\saves\\numPlayers.txt");
+	myfile << "Units Lost\n";	
+
+	//simulation.SerializeState(myfile);
+
+	/*for(int i = 0; i < 110; i++)
+	{
+		myfile << std::to_string((_Longlong) i);
+		myfile << '=';
+		myfile << simulation.getComponentName(i);
+		myfile << '\n';
+	}*/
+
+	int32_t numPLayers = simulation.getComponentName();
+	myfile << std::to_string((_Longlong) numPLayers);
+
+	myfile.close();
+
 
 	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)metadataString.c_str(), metadataString.length(), now, "metadata.json"));
 	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)simStateStream.str().c_str(), simStateStream.str().length(), now, "simulation.dat"));
