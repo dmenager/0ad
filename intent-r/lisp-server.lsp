@@ -266,23 +266,31 @@
   (let ((set (remove-if-not #'(lambda (action)
 				(getf action :with)) 
 			    actions))
-	(applicable (remove-if-not #'(lambda (entity)
-				       (or (eq (getf entity :type) 'infantry) 
-					   (eq (getf entity :type) 'cavalry)
-					   (eq (getf entity :type) 'siege)
-					   (eq (getf entity :type) 'support)
-					   (eq (getf entity :type) 'ship)))
-				   *entities*)))
-    
-    (format t "~S~%~S~%" set applicable)
-    (map 'list 
+	(applicable (remove-if-not  
+		     #'(lambda (entity)
+			 (or (eq 'infantry (eval (getf entity :type))) 
+			     (eq 'cavalry (eval (getf entity :type)))
+			     (eq 'siege (eval (getf entity :type)))
+			     (eq 'support (eval (getf entity :type)))
+			     (eq 'ship (eval (getf entity :type)))))
+		     *entities*)))
+
+    (map '() 
+	 #'(lambda (x) 
+		 (setq *atomic-actions* 
+		       (remove x *atomic-actions* :test #'equal)))
+	 set)
+   
+    (map '() 
 	 #'(lambda (action)
-	     (map 'list 
+	     (map '() 
 		  #'(lambda (entity)
-		      (setf (getf action :with) entity)
-		      (format t "~S~%" action))
+		      (format t "~S~%" entity)		      
+		       (setf (getf action :with) entity)
+		       (push action *atomic-actions*))
 		  applicable))
-	 set)))
+	 set)
+    *atomic-actions*))
     ;(subsets *atomic-actions* list)))
 
 (defun subsets (list into)
