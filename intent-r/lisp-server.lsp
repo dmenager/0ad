@@ -2,20 +2,67 @@
 (ql:quickload :trivial-timers)
 
 (defvar *thread-variables* '())
-(defvar *atomic-actions* '((attack '()) 
-			   (barter with '()) 
-			   (create '()) 
-			   (escort '()) 
-			   (gather '()) 
-			   (graze on '()) 
-			   (heal '()) 
-			   (lock '()) 
-			   (loot '()) 
-			   (move '()) 
-			   (patrol '()) 
-			   (repair '()) 
-			   (scout '()) 
-			   (trade '())))
+
+(defvar *atomic-actions* '((:action attack :with '() :who '()) 
+			   (:action barter :who '()) 
+			   (:action create :what '()) 
+			   (:action escort :who '()) 
+			   (:action gather :what '()) 
+			   (:action graze :what '()) 
+			   (:action heal :who '()) 
+			   (:action lock :what '()) 
+			   (:action loot :what '()) 
+			   (:action move :who '()) 
+			   (:action patrol :what '()) 
+			   (:action repair :what '()) 
+			   (:action scout :what '()) 
+			   (:action trade :what '() :who '())))
+
+(defvar *entities* '((:name 'swordsman :type 'infantry :owner '())
+		     (:name 'spearman :type 'infantry :owner '())
+		     (:name 'javelinist :type 'infantry :owner '())
+		     (:name 'archer :type 'infantry :owner '())
+		     (:name 'slinger :type 'infantry :owner '())
+		     (:name 'swordsman :type 'cavalry :owner '())
+		     (:name 'spearman :type 'cavalry :owner '())
+		     (:name 'javelinist :type 'cavalry :owner '())
+		     (:name 'archer :type 'cavalry :owner '())
+		     (:name 'female :type 'support :owner '())
+		     (:name 'trader :type 'support :owner '())
+		     (:name 'healer :type 'support :owner '())
+		     (:name 'onager :type 'siege :owner '())
+		     (:name 'ballista :type 'siege :owner '())
+		     (:name 'ram :type 'siege :owner '())
+		     (:name 'merchant-ship :type 'ship :owner '())
+		     (:name 'light-warship :type 'ship :owner '())
+		     (:name 'medium-warship :type 'ship :owner '())
+		     (:name 'heavy-warship :type 'ship :owner '())
+		     (:name 'animals :type 'herd)
+		     (:name 'animals :type 'hunt)
+		     (:name 'tree :type 'resource)
+		     (:name 'stone :type 'resource)
+		     (:name 'ore :type 'resource)
+		     (:name 'civic-centre :type 'structure :owner '())
+		     (:name 'house :type 'structure :owner '())
+		     (:name 'farmstead :type 'structure :owner '())
+		     (:name 'field :type 'structure :owner '())
+		     (:name 'corral :type 'structure :owner '())
+		     (:name 'mill :type 'structure :owner '())
+		     (:name 'outpost :type 'structure :owner '())
+		     (:name 'pallisade-wall :type 'structure :owner '())
+		     (:name 'pallisade-joint :type 'structure :owner '())
+		     (:name 'pallisade-gate :type 'structure :owner '())
+		     (:name 'dock :type 'structure :owner '())
+		     (:name 'market :type 'structure :owner '())
+		     (:name 'barracks :type 'structure :owner '())
+		     (:name 'temple :type 'structure :owner '())
+		     (:name 'defense-tower :type 'structure :owner '())
+		     (:name 'wall :type 'structure :owner '())
+		     (:name 'wall-turret :type 'structure :owner '())
+		     (:name 'city-gate :type 'structure :owner '())
+		     (:name 'commercial-port :type 'structure :owner '())
+		     (:name 'naval-shipyard :type 'structure :owner '())
+		     (:name 'embassy :type 'structure :owner '())))
 
 (defstruct node 
   (state-name 0 :type integer)
@@ -141,7 +188,7 @@
 
 #| Initialize MDP and expert's feature expectations |#
 
-; init-file = states, actions, transition probabilities, m trajectories
+; init-file = states, transition probabilities, m trajectories
 ; return reward function   
 (defun init-apprentice (init-file)
   
@@ -152,18 +199,20 @@
 			  :cur-state 0
 			  :start-state 0)))
     
-  ; fill state/action space
-  (setf (mdpr-states mdp-r) (make-state-space '()))
-  (setf (mdpr-actions mdp-r) (subsets *atomic-actions* (mdpr-actions mdp-r)))
   
-  ; create transition probabilites
-  (make-nodes mdp-r)
-  ; create expert's feature expectations
+    ; update :owner for each player in game
+    ; fill state/action space
+    (setf (mdpr-states mdp-r) (make-state-space '()))
+    (setf (mdpr-actions mdp-r) (subsets *atomic-actions* (mdpr-actions mdp-r)))
+  
+    ; create transition probabilites
+    (make-nodes mdp-r)
+    ; create expert's feature expectations
 
-  ;return reward function
-  mdp-r
-  
-  ;(discover-reward mdp-r '() '())
+    ;return reward function
+    mdp-r
+    
+    ;(discover-reward mdp-r '() '())
   ))
 
 #| Define the state space for the MDP |#
@@ -184,7 +233,7 @@
 	(incf count)))
     states))
 
-#| Define action space for MDP |#
+#| Define action space for MDP...not in use! |#
 
 ; actions = action list to fill
 ; TODO: Use proper termination condition probabilities
@@ -210,9 +259,31 @@
 	(setq actions (reverse (cons op (reverse actions)))))))
   actions)
 
+#| Define action space for MDP |#
 
-(defun make-action-space (list)
-  (subsets *atomic-actions* list))
+; list = list of atomic actions
+(defun make-action-space (actions)
+  (let ((set (remove-if-not #'(lambda (action)
+				(getf action :with)) 
+			    actions))
+	(applicable (remove-if-not #'(lambda (entity)
+				       (or (eq (getf entity :type) 'infantry) 
+					   (eq (getf entity :type) 'cavalry)
+					   (eq (getf entity :type) 'siege)
+					   (eq (getf entity :type) 'support)
+					   (eq (getf entity :type) 'ship)))
+				   *entities*)))
+    
+    (format t "~S~%~S~%" set applicable)
+    (map 'list 
+	 #'(lambda (action)
+	     (map 'list 
+		  #'(lambda (entity)
+		      (setf (getf action :with) entity)
+		      (format t "~S~%" action))
+		  applicable))
+	 set)))
+    ;(subsets *atomic-actions* list)))
 
 (defun subsets (list into)
   (let ((len (length list)))
@@ -230,6 +301,7 @@
       (let ((sub (loop for x from start to end
 		    collect (nth x list))))
 	sub)))
+
 #| build transition graph |#
 
 ; mdpr = mdpr simulation
@@ -322,4 +394,12 @@
 	    *thread-variables*
 	    t-idx)
 
-(format ostream "Using count: ~d~%" t-idx) |#
+(format ostream "Using count: ~d~%" t-idx) 
+
+; Filling action space
+(remove-if-not #'(lambda (x)
+			    (getf x :a)) '((:a 1) (:b 2)))
+; modifying plist
+(let ((x '(:a 1 :b 2)))
+	   (setf (getf x :a) 'artist)
+	   x)|#
