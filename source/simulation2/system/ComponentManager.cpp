@@ -936,7 +936,12 @@ void CComponentManager::FlushDestroyedComponents()
 	}
 }
 
-int32_t CComponentManager::cGetPlayerStates()
+
+//DC
+/*
+*  Test Function to see how extracting data worked
+*/
+int32_t CComponentManager::cGetUnitsTrained()
 {
 	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
 
@@ -950,6 +955,32 @@ int32_t CComponentManager::cGetPlayerStates()
 			{
 				debug_warn(L"Invalid eit"); // this should never happen
 				return false;
+			}
+			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
+
+			return bit->GetNumUnitsTrained();
+		}
+	}
+}
+
+//DC
+/*
+*  Function for building player state tables
+*/
+void CComponentManager::cAddPlayerStates()
+{
+	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
+
+	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
+	{
+		//find playerManager component 
+		if( cit->first == 79)
+		{
+			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
+			if (eit == cit->second.end())
+			{
+				debug_warn(L"Invalid eit"); // this should never happen
+				//return false;
 			}
 			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
 
@@ -975,16 +1006,23 @@ int32_t CComponentManager::cGetPlayerStates()
 				m_playerStateTables[i][m_playerStateTables.size()-1].push_back( m_playerStateTables.size()-1 );
 
 				//gather each feature data from statsTracker
-				for( int j = 1; j < NUM_FEATURES; j++ )
+				//23 features atm
+				for( int j = 1; j < 23; j++ )
 				{
 					m_playerStateTables[i][m_playerStateTables.size()-1].push_back( bit->GetPlayerData( i, j ) );
 				}
 			}
-
-			//return bit->GetNumUnitsTrained();
 		}
 	}
 }
+
+//DC
+//Return the state table to caller
+std::vector<std::vector<std::vector<int32_t>>> CComponentManager::cGetStateTable()
+{
+	return m_playerStateTables;
+}
+
 
 IComponent* CComponentManager::QueryInterface(entity_id_t ent, InterfaceId iid) const
 {

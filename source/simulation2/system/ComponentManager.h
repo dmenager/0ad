@@ -93,11 +93,17 @@ public:
 	 */
 	bool LoadScript(const VfsPath& filename, bool hotload = false);
 
-	/**DC
+	//DC
+	/*
 	*  This will be called every timing interval to add the player's latest state information into the 
 	*  playersStateTables vector. 
 	*/
-	int32_t cGetPlayerStates();
+	void cAddPlayerStates();
+	int32_t cGetUnitsTrained();
+
+	//DC
+	//Return the state table vector
+	std::vector<std::vector<std::vector<int32_t>>> cGetStateTable();
 
 	void RegisterMessageType(MessageTypeId mtid, const char* name);
 
@@ -333,7 +339,6 @@ private:
 	//Middle vecotr - table of states - size n ( n number of states per game )
 	//Inner Vector - individual states - size = number of features;
 	std::vector<std::vector<std::vector<int32_t>>> m_playerStateTables;
-	int32_t const NUM_FEATURES = 8;
 	bool m_makeOutside : true;
 
 	std::map<MessageTypeId, CDynamicSubscription> m_DynamicMessageSubscriptionsNonsync;
