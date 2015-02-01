@@ -129,6 +129,15 @@ public:
 	 */
 	int ProgressiveLoad();
 
+	//DC
+	/**
+	 * get the componenet name associated with the given cid
+	 */
+	int32_t getUnitsTrained();
+	std::vector<std::vector<std::vector<int32_t>>> getStateTable();
+	void addPlayerState();
+
+
 	/**
 	 * Reload any scripts that were loaded from the given filename.
 	 * (This is used to implement hotloading.)

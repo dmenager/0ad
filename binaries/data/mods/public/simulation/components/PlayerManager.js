@@ -47,6 +47,32 @@ PlayerManager.prototype.GetPlayerByID = function(id)
 	return INVALID_ENTITY;
 };
 
+/**
+ * returns player 1's units trained
+ */
+PlayerManager.prototype.GetPlayerUnitsTrained = function()
+{
+
+	//for (var i = 0; i < n; ++i)
+	//{
+		var playerEnt = this.GetPlayerByID(1);
+		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
+		return cmpPlayerStatisticsTracker.GetNumUnitsTrained();
+	//}
+};
+
+
+/**
+ * parameters int player and int feature
+ * This will return the requested feature data for the specified player
+ */
+PlayerManager.prototype.GetPlayerData = function( player, feature )
+{
+		var playerEnt = this.GetPlayerByID(player);
+		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
+		return cmpPlayerStatisticsTracker.GetNumPlayerData(feature);
+};
+
 PlayerManager.prototype.GetNumPlayers = function()
 {
 	return this.playerEntities.length;

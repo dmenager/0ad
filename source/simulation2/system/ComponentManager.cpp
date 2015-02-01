@@ -26,6 +26,8 @@
 
 #include "simulation2/MessageTypes.h"
 #include "simulation2/components/ICmpTemplateManager.h"
+#include "simulation2/components/ICmpPlayerManager.h"
+#include "simulation2/components/ICmpStatisticsTracker.h"
 
 #include "lib/utf8.h"
 #include "ps/CLogger.h"
@@ -933,6 +935,94 @@ void CComponentManager::FlushDestroyedComponents()
 		}
 	}
 }
+
+
+//DC
+/*
+*  Test Function to see how extracting data worked
+*/
+int32_t CComponentManager::cGetUnitsTrained()
+{
+	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
+
+	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
+	{
+		//find playerManager component 
+		if( cit->first == 79)
+		{
+			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
+			if (eit == cit->second.end())
+			{
+				debug_warn(L"Invalid eit"); // this should never happen
+				return false;
+			}
+			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
+
+			return bit->GetNumUnitsTrained();
+		}
+	}
+}
+
+//DC
+/*
+*  Function for building player state tables
+*/
+void CComponentManager::cAddPlayerStates()
+{
+	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
+
+	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
+	{
+		//find playerManager component 
+		if( cit->first == 79)
+		{
+			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
+			if (eit == cit->second.end())
+			{
+				debug_warn(L"Invalid eit"); // this should never happen
+				//return false;
+			}
+			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
+
+			int32_t numPlayers = bit->GetNumPlayers();
+
+			//if first time then generate the outside player vectors
+			if( m_makeOutside )
+			{
+				for (int i = 1; i < numPlayers; i ++)
+				{
+					m_playerStateTables.push_back( std::vector<std::vector<int32_t>>() );
+				}
+				m_makeOutside = false;
+			}
+
+			//Collect state info for each player, 1 to n
+			//player 0 is not a real player so do not collect thier info.
+			for( int i = 1; i < numPlayers; i++ )
+			{
+				m_playerStateTables[i].push_back( std::vector<int32_t>() );
+
+				//add the state number in the first spot
+				m_playerStateTables[i][m_playerStateTables.size()-1].push_back( m_playerStateTables.size()-1 );
+
+				//gather each feature data from statsTracker
+				//23 features atm
+				for( int j = 1; j < 23; j++ )
+				{
+					m_playerStateTables[i][m_playerStateTables.size()-1].push_back( bit->GetPlayerData( i, j ) );
+				}
+			}
+		}
+	}
+}
+
+//DC
+//Return the state table to caller
+std::vector<std::vector<std::vector<int32_t>>> CComponentManager::cGetStateTable()
+{
+	return m_playerStateTables;
+}
+
 
 IComponent* CComponentManager::QueryInterface(entity_id_t ent, InterfaceId iid) const
 {

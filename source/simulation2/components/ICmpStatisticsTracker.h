@@ -15,28 +15,23 @@
  * along with 0 A.D.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INCLUDED_ICMPPLAYERMANAGER
-#define INCLUDED_ICMPPLAYERMANAGER
+#ifndef INCLUDED_ICMPSTATISTICSTRACKER
+#define INCLUDED_ICMPSTATISTICSTRACKER
 
 #include "simulation2/system/Interface.h"
 
 /**
  * Player manager. This maintains the list of players that exist in the game.
  */
-class ICmpPlayerManager : public IComponent
+class ICmpStatisticsTracker : public IComponent
 {
 public:
-	virtual void AddPlayer(entity_id_t ent) = 0;
+	virtual int32_t GetNumWood();
 
-	virtual int32_t GetNumPlayers() = 0;
-
-	virtual int32_t GetNumUnitsTrained() = 0;
-
-	virtual int32_t GetPlayerData( int32_t player, int32_t feature ) = 0;
-
-	virtual entity_id_t GetPlayerByID(int32_t id) = 0;
-
-	DECLARE_INTERFACE_TYPE(PlayerManager)
+	virtual bool NewJSObject(ScriptInterface& scriptInterface, JS::MutableHandleObject out) const;
+	static void InterfaceInit(ScriptInterface& scriptInterface);
+	static int GetInterfaceId() { return 91; }
+	//DECLARE_INTERFACE_TYPE(StatisticsTracker)
 };
 
-#endif // INCLUDED_ICMPPLAYERMANAGER
+#endif // INCLUDED_ICMPSTATISTICSTRACKER

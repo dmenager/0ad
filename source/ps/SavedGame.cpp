@@ -113,6 +113,45 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	if (!archiveWriter)
 		WARN_RETURN(ERR::FAIL);
 
+	//DC
+	//test component stuff
+	std::ofstream myfile;
+	myfile.open ("C:\\0adtestdata\\0adtestdata.txt");
+	myfile << "Units trained\n";	
+
+	//simulation.SerializeState(myfile);
+
+	/*for(int i = 0; i < 110; i++)
+	{
+		myfile << std::to_string((_Longlong) i);
+		myfile << '=';
+		myfile << simulation.getComponentName(i);
+		myfile << '\n';
+	}*/
+
+	int32_t numPLayers = simulation.getUnitsTrained();
+	myfile << std::to_string((_Longlong) numPLayers);
+
+	myfile.close();
+	simulation.addPlayerState();
+
+	std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation.getStateTable();
+	for(int i = 0; i < stateTable.size(); i++)
+	{
+		myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
+		myfile << "state\tfood\twood\tstone\titon\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+		for(int j = 0; j < stateTable[i].size(); i++)
+		{
+			for(int k = 0; k < stateTable[i][j].size(); k++)
+			{
+				myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+			}
+			myfile << "\n";
+		}
+		myfile.close();
+	}
+
+
 	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)metadataString.c_str(), metadataString.length(), now, "metadata.json"));
 	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)simStateStream.str().c_str(), simStateStream.str().length(), now, "simulation.dat"));
 	archiveWriter.reset(); // close the file
