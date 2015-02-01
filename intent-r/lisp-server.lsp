@@ -289,38 +289,63 @@
 #| Define action space for MDP |#
 
 ; list = list of atomic actions
-(defun make-action-space (actions)
-  (let ((set (remove-if #'(lambda (action)
-			    (eq (atomic-action-with action) 'inv)) 
-			actions))
-	(applicable (remove-if-not  
-		     #'(lambda (entity)
-			 (or (eq 'infantry (entity-type (eval entity))) 
-			     (eq 'cavalry (entity-type (eval entity)))
-			     (eq 'siege (entity-type (eval entity)))
-			     (eq 'support (entity-type (eval entity)))
-			     (eq 'ship (entity-type (eval entity)))))
-		     *entities*)))
+; att = string list of atomic-action attributs
+(defun make-action-space (actions atts)
+  (if (null atts)
+      (subsets *atomic-actions* *atomic-actions*)
+      (let* ((att (first atts))
+	    (set (remove-if #'(lambda (action)
+				(eq (eval (reverse (cons action 
+							 (reverse 
+							  (to-syms (concatenate 'string 
+										"atomic-action-" 
+										att)))))) 'inv)) 
+			    actions))
+	    (applicable (remove-if-not  
+			 #'(lambda (entity)
+			     (cond
+			       ((or (string= "with" att) 
+				    (string= "who" att)) 
+				(or (eq 'infantry (entity-type (eval entity))) 
+				    (eq 'cavalry (entity-type (eval entity)))
+				    (eq 'siege (entity-type (eval entity)))
+				    (eq 'support (entity-type (eval entity)))
+				    (eq 'ship (entity-type (eval entity)))
+				    (eq 'structure (entity-type (eval entity)))))
+			       ((string= "what" att) 
+				(or (eq 'infantry (entity-type (eval entity))) 
+				    (eq 'cavalry (entity-type (eval entity)))
+				    (eq 'siege (entity-type (eval entity)))
+				    (eq 'support (entity-type (eval entity)))
+				    (eq 'ship (entity-type (eval entity)))))
+			       (t (format *standard-output* "Invalid action attribute~%"))))
+			 *entities*)))
+	
+	(format t "Actions: ~S~%Applicable Entities: ~S~%~%" set applicable)
     
-    (format t "~S~%~S~%" set applicable)
-    
-    (map '() 
-	 #'(lambda (x) 
+	(map '() 
+	     #'(lambda (x) 
 		 (setq *atomic-actions* 
 		       (remove x *atomic-actions* :test #'equal)))
-	 set)
+	     set)
+	
+	(map '() 
+	     #'(lambda (action)
+		 (map '() 
+		      #'(lambda (entity)
+			  (let ((a (copy-structure action)))
+			    (cond
+			      ((string= "with" att) 
+			       (setf (atomic-action-with a) (eval entity)))
+			      ((string= "who" att) 
+			       (setf (atomic-action-who a) (eval entity)))
+			      ((string= "what" att) 
+			       (setf (atomic-action-what a) (eval entity))))
+			    (push  a *atomic-actions*)))
+		      applicable))
+	     set)
+    (make-action-space *atomic-actions* (rest atts)))))
 
-    (map '() 
-	 #'(lambda (action)
-	     (map '() 
-		  #'(lambda (entity)
-		      (let ((a (copy-structure action)))
-			(setf (atomic-action-with a) (eval entity))
-			(push  a *atomic-actions*)))
-		  applicable))
-	 set)
-    *atomic-actions*))
-    ;(subsets *atomic-actions* list)))
 
 (defun subsets (list into)
   (let ((len (length list)))
