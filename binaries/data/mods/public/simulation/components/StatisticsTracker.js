@@ -132,7 +132,7 @@ StatisticsTracker.prototype.GetPlayerData = function( feature )
 
 	switch ( feature ) {
 	case 1:
-		return this.resourcesGathered.food + this.resourcesBought.food - this.resourcesUsed.food - this.resourcesSold.food + 300;
+		return (this.resourcesGathered.food + this.resourcesBought.food - this.resourcesUsed.food - this.resourcesSold.food + 300);
 		break;
 	case 2:
 		return this.resourcesGathered.wood + this.resourcesBought.wood - this.resourcesUsed.wood - this.resourcesSold.wood + 300;
@@ -141,7 +141,7 @@ StatisticsTracker.prototype.GetPlayerData = function( feature )
 		return this.resourcesGathered.stone + this.resourcesBought.stone - this.resourcesUsed.stone - this.resourcesSold.stone + 300;
 		break;
 	case 4:
-		return this.resourcesGathered.iron + this.resourcesBought.iron - this.resourcesUsed.iron - this.resourcesSold.iron + 300;
+		return this.resourcesGathered.Metal + this.resourcesBought.Metal - this.resourcesUsed.Metal - this.resourcesSold.Metal + 300;
 		break;
 	case 5:
 		return this.unitsTrained.Infantry - this.unitsLost.Infantry + 4;
@@ -165,31 +165,31 @@ StatisticsTracker.prototype.GetPlayerData = function( feature )
 		return this.unitsTrained.Ship - this.unitsLost.Ship;
 		break;
 	case 12:
-		return this.buildingsConstructed.House - this.buildingsDestroyed.House;
+		return this.buildingsConstructed.House - this.buildingsLost.House;
 		break;
 	case 13:
-		return this.buildingsConstructed.Economic - this.buildingsDestroyed.Economic;
+		return this.buildingsConstructed.Economic - this.buildingsLost.Economic;
 		break;
 	case 14:
-		return this.buildingsConstructed.Outpost - this.buildingsDestroyed.Outpost;
+		return this.buildingsConstructed.Outpost - this.buildingsLost.Outpost;
 		break;
 	case 15:
-		return this.buildingsConstructed.Military - this.buildingsDestroyed.Military;
+		return this.buildingsConstructed.Military - this.buildingsLost.Military;
 		break;
 	case 16:
-		return this.buildingsConstructed.Fortress - this.buildingsDestroyed.Fortress;
+		return this.buildingsConstructed.Fortress - this.buildingsLost.Fortress;
 		break;
 	case 17:
-		return this.buildingsConstructed.CivCentre - this.buildingsDestroyed.CivCentre + 1;
+		return this.buildingsConstructed.CivCentre - this.buildingsLost.CivCentre + 1;
 		break;
 	case 18:
-		return this.buildingsConstructed.Wonder - this.buildingsDestroyed.Wonder;
+		return this.buildingsConstructed.Wonder - this.buildingsLost.Wonder;
 		break;
 	case 19:
 		return this.enemyUnitsKilled.total;
 		break;
 	case 20:
-		return this.enemyBuildingsDestroyed;
+		return this.enemyBuildingsDestroyed.total;
 		break;
 	case 21:
 		return this.unitsLost.total;

@@ -70,7 +70,7 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 {
 		var playerEnt = this.GetPlayerByID(player);
 		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
-		return cmpPlayerStatisticsTracker.GetNumPlayerData(feature);
+		return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
 
 PlayerManager.prototype.GetNumPlayers = function()
