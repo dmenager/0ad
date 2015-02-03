@@ -136,12 +136,16 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	simulation.addPlayerState();
 
 	std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation.getStateTable();
-	for(int i = 0; i < stateTable.size(); i++)
+	int outside = stateTable.size();
+	
+	for(int i = 1; i < stateTable.size(); i++)
 	{
+		int middle = stateTable[i].size();
 		myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
-		myfile << "state\tfood\twood\tstone\titon\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
-		for(int j = 0; j < stateTable[i].size(); i++)
+		myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+		for(int j = 0; j < stateTable[i].size(); j++)
 		{
+			int inner = stateTable[i][j].size();
 			for(int k = 0; k < stateTable[i][j].size(); k++)
 			{
 				myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";

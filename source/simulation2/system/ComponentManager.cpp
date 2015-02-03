@@ -59,6 +59,8 @@ CComponentManager::CComponentManager(CSimContext& context, shared_ptr<ScriptRunt
 	m_NextScriptComponentTypeId(CID__LastNative),
 	m_ScriptInterface("Engine", "Simulation", rt),
 	m_SimContext(context), m_CurrentlyHotloading(false)
+	//DC//
+	, m_makeOutside(true)
 {
 	context.SetComponentManager(this);
 
@@ -989,7 +991,7 @@ void CComponentManager::cAddPlayerStates()
 			//if first time then generate the outside player vectors
 			if( m_makeOutside )
 			{
-				for (int i = 1; i < numPlayers; i ++)
+				for (int i = 0; i < numPlayers; i++)
 				{
 					m_playerStateTables.push_back( std::vector<std::vector<int32_t>>() );
 				}
@@ -998,18 +1000,18 @@ void CComponentManager::cAddPlayerStates()
 
 			//Collect state info for each player, 1 to n
 			//player 0 is not a real player so do not collect thier info.
-			for( int i = 1; i < numPlayers; i++ )
+			for( int i = 0; i < numPlayers; i++ )
 			{
 				m_playerStateTables[i].push_back( std::vector<int32_t>() );
 
 				//add the state number in the first spot
-				m_playerStateTables[i][m_playerStateTables.size()-1].push_back( m_playerStateTables.size()-1 );
+				m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( m_playerStateTables[i].size()-1 );
 
 				//gather each feature data from statsTracker
 				//23 features atm
 				for( int j = 1; j < 23; j++ )
 				{
-					m_playerStateTables[i][m_playerStateTables.size()-1].push_back( bit->GetPlayerData( i, j ) );
+					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( bit->GetPlayerData( i, j ) );
 				}
 			}
 		}
