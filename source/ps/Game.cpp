@@ -51,6 +51,9 @@
 
 #include "tools/atlas/GameInterface/GameLoop.h"
 
+#include "i18n/L10n.h"
+#include "lib/utf8.h"
+
 extern bool g_GameRestarted;
 extern GameLoopState* g_AtlasGameLoop;
 
@@ -289,7 +292,7 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 // TODO: doInterpolate is optional because Atlas interpolates explicitly,
 // so that it has more control over the update rate. The game might want to
 // do the same, and then doInterpolate should be redundant and removed.
-
+int count = 0;
 bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 {
 	if (m_Paused)
@@ -298,11 +301,39 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	if (!m_TurnManager)
 		return true;
 
+	CSimulation2* simulation = g_Game->GetSimulation2();
 	const double deltaSimTime = deltaRealTime * m_SimRate;
 	
 	bool ok = true;
 	if (deltaSimTime)
 	{
+		count++;
+		if (count >= 5) {
+			count = 0;
+			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
+			simulation->addPlayerState();
+			
+			std::ofstream myfile;
+			std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation->getStateTable();
+			int outside = stateTable.size();
+	
+			for(int i = 1; i < stateTable.size(); i++)
+			{
+				int middle = stateTable[i].size();
+				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
+				myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+				for(int j = 0; j < stateTable[i].size(); j++)
+				{
+					int inner = stateTable[i][j].size();
+					for(int k = 0; k < stateTable[i][j].size(); k++)
+					{
+						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+					}
+					myfile << "\n";
+				}
+				myfile.close();
+			}
+		}
 		// To avoid confusing the profiler, we need to trigger the new turn
 		// while we're not nested inside any PROFILE blocks
 		if (m_TurnManager->WillUpdate(deltaSimTime))
