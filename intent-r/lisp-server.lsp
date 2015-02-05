@@ -52,6 +52,7 @@
 (defvar *thread-variables* '())
 
 (defvar *atomic-actions* '())
+(defvar *total-actions* (- 8516 1))
 
 (push (make-atomic-action :action 'attack :with '() :who '())
       *atomic-actions*)
@@ -149,9 +150,15 @@
   (let ((socket (usocket:socket-listen usocket:*wildcard-host*
 				       port
 				       :reuse-address t))
-	(count 0))
+	(count 9))
     (unwind-protect 
 	 (progn
+	   (with-open-file (count-file "lastCount.txt"
+				       :direction :input
+				       :if-does-not-exist :error)
+	     (setq count (read count-file nil))
+	     (format *standard-output* "read ~d from counter!~%" count)
+	     (clear-input count-file))
 	   (loop 
 	      (format *standard-output* "Waiting for input on ~A~%" socket)
 	      (usocket:wait-for-input socket)
@@ -182,7 +189,14 @@
 			    (handle-request stream cnt std-out timer)
 			    (clear-input stream)))) 
 		   :arguments (list *standard-output* thread-index))
-		  (incf count))))
+		  (incf count)
+		  (with-open-file (write-count "lastCount.txt"
+					       :direction :output
+					       :if-exists :supersede
+					       :if-does-not-exist :create)
+		    (format write-count "~d~%" count)
+		    (format *standard-output* "Wrote ~d to file~%" count)
+		    (force-output write-count)))))
       (progn
 	; wait for data to implement message handlers before the next 2 lines
 	;(format stream "Connection closed due to inactivity.~%")
@@ -267,40 +281,34 @@
 	(incf count)))
     states))
 
-#| Define action space for MDP...not in use! |#
+#| Convert decimal to binary list|#
 
-; actions = action list to fill
-; TODO: Use proper termination condition probabilities
-(defun make-action-space-2 (actions)
-  ;open server client file
-  (with-open-file (client-data "testInit.txt"
-			       :direction :input
-			       :if-does-not-exist :error)
-    
-    (do ((line (read-line client-data nil) 
-	       (read-line client-data nil)))
-	((null line))
-      (let* ((list (first (to-syms line)))
-	     (op (make-option :name (first list) 
-			      :policy (second list) 
-			      :termination-conditions '())))
-	(map '() 
-	     #'(lambda (state)
-		 (setf (option-termination-conditions op) 
-		       (reverse (cons (make-term-cond :state-name state) 
-			     (reverse (option-termination-conditions op))))))
-	     (third list))
-	(setq actions (reverse (cons op (reverse actions)))))))
-  actions)
+; n = number to convert to binary
+(defun binary-list (n &optional acc)
+  (cond ((zerop n) (or acc (list 0)))
+        ((plusp n)
+         (binary-list (ash n -1) (cons (logand 1 n) acc)))
+        (t (error "~S: non-negative argument required, got ~s" 'binary-list n))))
 
 #| Define action space for MDP |#
 
 ; list = list of atomic actions
-; att = string list of atomic-action attributs
+; atts = string list of atomic-action attributes
 (defun make-action-space (actions atts)
   (if (null atts)
-      (setq *atomic-actions* 
-	    (append *atomic-actions* (combinations 2 *atomic-actions*) '(()))) 
+      (let ((ret '()))
+	(setq *atomic-actions* 
+	      (append *atomic-actions* (combinations 2 *atomic-actions*) '(())))
+	 
+	(loop while (>= 0 *total-actions*) do
+	     (let ((item (cons (binary-list *total-actions*) 
+			       (list (getf (nth *total-actions* *atomic-actions*) :action)
+				     (getf (nth *total-actions* *atomic-actions*) :with)
+				     (getf (nth *total-actions* *atomic-actions*) :who)
+				     (getf (nth *total-actions* *atomic-actions*):what)))))
+	       (cons item ret))
+	     (decf *total-actions*))
+	 ret)
       (let* ((att (first atts))
 	    (set (remove-if #'(lambda (action)
 				(eq (eval (reverse (cons action 
@@ -343,7 +351,7 @@
 		      #'(lambda (entity)
 			  (let ((a (copy-structure action)))
 			    (cond
-			      ((string= "with" att) 
+			      ((string= "with" att)
 			       (setf (atomic-action-with a) (eval entity)))
 			      ((string= "who" att) 
 			       (setf (atomic-action-who a) (eval entity)))
