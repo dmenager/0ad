@@ -1,2 +1,0 @@
-(option1 (pi) (st1 st2 st4 st6))
-(option2 (pi) (st4 st3 st9))
