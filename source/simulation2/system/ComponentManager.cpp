@@ -972,6 +972,9 @@ int32_t CComponentManager::cGetUnitsTrained()
 void CComponentManager::cAddPlayerStates()
 {
 	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
+	int cur;
+	int delta;
+	int prev;
 
 	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
 	{
@@ -994,6 +997,12 @@ void CComponentManager::cAddPlayerStates()
 				for (int i = 0; i < numPlayers; i++)
 				{
 					m_playerStateTables.push_back( std::vector<std::vector<int32_t>>() );
+					m_playerPrevState.push_back( std::vector<int32_t>() );
+
+					for( int j = 0; j < 23; j++)
+					{
+						m_playerPrevState[i].push_back( 0 );
+					}
 				}
 				m_makeOutside = false;
 			}
@@ -1011,7 +1020,12 @@ void CComponentManager::cAddPlayerStates()
 				//23 features atm
 				for( int j = 1; j < 23; j++ )
 				{
-					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( bit->GetPlayerData( i, j ) );
+					cur = bit->GetPlayerData( i, j );
+					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( cur );
+					prev = m_playerPrevState[i][j];
+					delta = cur - prev;
+					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( delta );
+					m_playerPrevState[i][j] = cur;
 				}
 			}
 		}

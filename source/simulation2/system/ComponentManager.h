@@ -339,6 +339,7 @@ private:
 	//Middle vecotr - table of states - size n ( n number of states per game )
 	//Inner Vector - individual states - size = number of features;
 	std::vector<std::vector<std::vector<int32_t>>> m_playerStateTables;
+	std::vector<std::vector<int32_t>>			   m_playerPrevState;
 	bool m_makeOutside;
 
 	std::map<MessageTypeId, CDynamicSubscription> m_DynamicMessageSubscriptionsNonsync;
