@@ -9,7 +9,7 @@ binaries/system/pyrogenesis.pdb
 *.so
 *.so.*
 *.a
-binaries/system
+binaries/system/
 binaries/system/ActorEditor
 binaries/system/pyrogenesis
 binaries/system/test
