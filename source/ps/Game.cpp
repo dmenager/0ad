@@ -54,6 +54,13 @@
 #include "i18n/L10n.h"
 #include "lib/utf8.h"
 
+
+
+
+
+
+
+
 extern bool g_GameRestarted;
 extern GameLoopState* g_AtlasGameLoop;
 
@@ -308,7 +315,8 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	if (deltaSimTime)
 	{
 		count++;
-		if (count >= 5) {
+		// This time is affected by processing speed, so, I don't know what to do about interval yet, but this is about 30 seconds on an i5 with 32 GB ram
+		if (count >= 5000) {
 			count = 0;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
@@ -316,12 +324,14 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			std::ofstream myfile;
 			std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation->getStateTable();
 			int outside = stateTable.size();
-	
+			// Players
+#ifdef _WIN32
 			for(int i = 1; i < stateTable.size(); i++)
 			{
+				
 				int middle = stateTable[i].size();
 				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
-				myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+				//myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();
@@ -333,6 +343,43 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				}
 				myfile.close();
 			}
+#endif
+			#ifdef linux
+			for(int i = 1; i < stateTable.size(); i++)
+			{
+				int sockfd;
+				int portno = 3000 + i;
+				int n;
+				char buffer[1024];
+				struct sockaddr_in serv_addr;
+				struct hostent *server;
+				try 
+				{
+					sockfd = socket(AF_INET, SOCK_STREAM, 0);
+					server = gethostbyname("ip");
+					bzero((char *) &serv_addr, sizeof(serv_addr));
+					serv_addr.sin_port = htons(portno);
+					connect(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr));
+				}
+					
+				int middle = stateTable[i].size();
+				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
+				//myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+				for(int j = 0; j < stateTable[i].size(); j++)
+				{
+					int inner = stateTable[i][j].size();
+					for(int k = 0; k < stateTable[i][j].size(); k++)
+					{
+						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+						buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+						bzero(buffer, 1024);
+						n = write(sockfd, buffer, strlen(buffer));
+					}
+					myfile << "\n";
+				}
+				myfile.close();
+			}
+#endif
 		}
 		// To avoid confusing the profiler, we need to trigger the new turn
 		// while we're not nested inside any PROFILE blocks
