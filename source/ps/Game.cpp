@@ -339,7 +339,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					{
 						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
 					}
-					myfile << "\n";
+					myfile << "null\n";
 				}
 				myfile.close();
 			}
@@ -363,7 +363,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				}
 					
 				int middle = stateTable[i].size();
-				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
+				myfile.open ("~/0addata/testplayer" + std::to_string((_Longlong) i) + ".txt");
 				//myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
@@ -371,11 +371,14 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
 						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
-						buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
-						bzero(buffer, 1024);
-						n = write(sockfd, buffer, strlen(buffer));
+						try
+						{
+							buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+							bzero(buffer, 1024);
+							n = write(sockfd, buffer, strlen(buffer));
+						}
 					}
-					myfile << "\n";
+					myfile << "null\n";
 				}
 				myfile.close();
 			}
