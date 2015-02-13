@@ -1001,7 +1001,21 @@ void CComponentManager::cAddPlayerStates()
 
 					for( int j = 0; j < 23; j++)
 					{
-						m_playerPrevState[i].push_back( 0 );
+						if( j  > 0 && j < 5 )
+							m_playerPrevState[i].push_back( 300 );
+						else if ( j == 5 )
+							m_playerPrevState[i].push_back( 4 );
+						else if ( j == 6 )
+							m_playerPrevState[i].push_back( 8 );
+						else if ( j == 7 )
+							m_playerPrevState[i].push_back( 4 );
+						else if ( j == 8 )
+							m_playerPrevState[i].push_back( 1 );
+						else if ( j == 17 )
+							m_playerPrevState[i].push_back( 1 );
+						else
+							m_playerPrevState[i].push_back( 0 );
+
 					}
 				}
 				m_makeOutside = false;

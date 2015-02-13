@@ -270,6 +270,9 @@ PSRETURN CGame::ReallyStartGame()
 	// Mark terrain as modified so the minimap can repaint (is there a cleaner way of handling this?)
 	g_GameRestarted = true;
 
+	//get initial State when game begins
+	m_Simulation2->addPlayerState();
+
 	return 0;
 }
 
@@ -316,7 +319,8 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	{
 		count++;
 		// This time is affected by processing speed, so, I don't know what to do about interval yet, but this is about 30 seconds on an i5 with 32 GB ram
-		if (count >= 5000) {
+		// Everyone will need to play with this for the time being, try to get it to be around 30 seconds.
+		if (count >= 500) {
 			count = 0;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
@@ -327,19 +331,41 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			// Players
 #ifdef _WIN32
 			for(int i = 1; i < stateTable.size(); i++)
-			{
-				
+			{				
 				int middle = stateTable[i].size();
 				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
-				//myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+				myfile << "state\t\t"
+					   << "food\t\tdFood\t\t"
+					   << "wood\t\tdWood\t\t"
+					   << "stone\t\tdStone\t\t"
+					   << "metal\t\tdMetal\t\t"
+					   << "inf\t\tdInf\t\t"
+					   << "wrkr\t\tdWrkr\t\t"
+					   << "fmales\t\tdFmales\t\t"
+					   << "cvlry\t\tdCvlry\t\t"
+					   << "chmp\t\tdChmp\t\t"
+					   << "hero\t\tdHero\t\t"
+					   << "ships\t\tdShips\t\t"
+					   << "house\t\tdHouse\t\t"
+					   << "econ\t\tdEcon\t\t"
+					   << "outpst\t\tdOutpst\t\t"
+					   << "mltry\t\tdMltry\t\t"
+					   << "fortr\t\tdFortr\t\t"
+					   << "civCnt\t\tdCivCnt\t\t"
+					   << "wndr\t\tdWndr\t\t"
+					   << "enK\t\tdEnK\t\t"
+					   << "enBldD\t\tdEnBldD\t\t"
+					   << "unitsL\t\tdUnitsL\t\t"
+					   << "bldL\t\tdBldL\t\tLabel\n";
+
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
-						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t\t";
 					}
-					myfile << "\n";
+					myfile << "NULL" << "\n";
 				}
 				myfile.close();
 			}
@@ -363,8 +389,31 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				}
 					
 				int middle = stateTable[i].size();
-				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
-				//myfile << "state\tfood\twood\tstone\tmetal\tinfantrys\tworkers\tfemales\tcavalry\tchampions\theroes\tship\teconomic\toutposts\tmilitary\tfortresses\tcivCentres\tWonders\tenemyKilled\tenemyBuildingsDestroyed\tunitsLost\tbuildingsLost\n";
+				myfile.open ("home/0adtestdata/testplayer" + std::to_string((_Longlong) i) + ".txt");
+				myfile << "state\t\t"
+					   << "food\t\tdFood\t\t"
+					   << "wood\t\tdWood\t\t"
+					   << "stone\t\tdStone\t\t"
+					   << "metal\t\tdMetal\t\t"
+					   << "inf\t\tdInf\t\t"
+					   << "wrkr\t\tdWrkr\t\t"
+					   << "fmales\t\tdFmales\t\t"
+					   << "cvlry\t\tdCvlry\t\t"
+					   << "chmp\t\tdChmp\t\t"
+					   << "hero\t\tdHero\t\t"
+					   << "ships\t\tdShips\t\t"
+					   << "house\t\tdHouse\t\t"
+					   << "econ\t\tdEcon\t\t"
+					   << "outpst\t\tdOutpst\t\t"
+					   << "mltry\t\tdMltry\t\t"
+					   << "fortr\t\tdFortr\t\t"
+					   << "civCnt\t\tdCivCnt\t\t"
+					   << "wndr\t\tdWndr\t\t"
+					   << "enK\t\tdEnK\t\t"
+					   << "enBldD\t\tdEnBldD\t\t"
+					   << "unitsL\t\tdUnitsL\t\t"
+					   << "bldL\t\tdBldL\t\tLabel\n";
+				
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();

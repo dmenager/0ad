@@ -141,7 +141,7 @@ StatisticsTracker.prototype.GetPlayerData = function( feature )
 		return this.resourcesGathered.stone + this.resourcesBought.stone - this.resourcesUsed.stone - this.resourcesSold.stone + 300;
 		break;
 	case 4:
-		return this.resourcesGathered.Metal + this.resourcesBought.Metal - this.resourcesUsed.Metal - this.resourcesSold.Metal + 300;
+		return this.resourcesGathered.metal + this.resourcesBought.metal - this.resourcesUsed.metal - this.resourcesSold.metal + 300;
 		break;
 	case 5:
 		return this.unitsTrained.Infantry - this.unitsLost.Infantry + 4;
