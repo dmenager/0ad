@@ -54,13 +54,6 @@
 #include "i18n/L10n.h"
 #include "lib/utf8.h"
 
-
-
-
-
-
-
-
 extern bool g_GameRestarted;
 extern GameLoopState* g_AtlasGameLoop;
 
@@ -288,6 +281,11 @@ void CGame::SetPlayerID(int playerID)
 		m_TurnManager->SetPlayerID(m_PlayerID);
 }
 
+int count = 0;
+std::string year, month, day, hour, minute, second;
+time_t now;
+tm *ltm;
+
 void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& savedState)
 {
 	JSContext* cx = m_Simulation2->GetScriptInterface().GetContext();
@@ -296,13 +294,22 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 	JS::RootedValue attribs(cx, attribs1.get()); // TODO: Get Handle parameter directly with SpiderMonkey 31
 	m_ReplayLogger->StartGame(&attribs);
 
+	// Generate serial number based on time and date, as well as player. pssmmhhddmmyyyy
+	now = time(0);
+	ltm = gmtime(&now);
+	year = std::to_string(1900 + ltm->tm_year);
+	month = std::to_string (1 + ltm->tm_mon);
+	day = std::to_string (ltm->tm_mday);
+	hour = std::to_string (ltm->tm_hour);
+	minute = std::to_string (ltm->tm_min + 1);
+	second = std::to_string (ltm-> tm_sec);
+
 	RegisterInit(attribs, savedState);
 }
 
 // TODO: doInterpolate is optional because Atlas interpolates explicitly,
 // so that it has more control over the update rate. The game might want to
 // do the same, and then doInterpolate should be redundant and removed.
-int count = 0;
 bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 {
 	if (m_Paused)
@@ -331,9 +338,14 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			// Players
 #ifdef _WIN32
 			for(int i = 1; i < stateTable.size(); i++)
-			{				
+			{			
+				// Add the player to the generated serial number.
+				std::string stri;
+				stri = std::to_string (i);
+				std::string sn = stri + second + minute + hour + day + month + year;
+				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
-				myfile.open ("C:\\0adtestdata\\testplayer" + std::to_string((_Longlong) i) + ".txt");
+				
 				myfile << "state\t\t"
 					   << "food\t\tdFood\t\t"
 					   << "wood\t\tdWood\t\t"
@@ -370,26 +382,33 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				myfile.close();
 			}
 #endif
-			#ifdef linux
+#ifdef linux
 			for(int i = 1; i < stateTable.size(); i++)
 			{
+				// Add the player to the generated serial number.
+				std::string stri;
+				stri = std::to_string (i);
+				std::string sn = stri + second + minute + hour + day + month + year;
+				myfile.open ("~/0adtestdata/" + sn);
+
+				// Socket shenanigans.
 				int sockfd;
-				int portno = 3000 + i;
+				int portno = 3000;
 				int n;
 				char buffer[1024];
 				struct sockaddr_in serv_addr;
 				struct hostent *server;
-				try 
+				try
 				{
-					sockfd = socket(AF_INET, SOCK_STREAM, 0);
-					server = gethostbyname("ip");
-					bzero((char *) &serv_addr, sizeof(serv_addr));
-					serv_addr.sin_port = htons(portno);
-					connect(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr));
+						sockfd = socket(AF_INET, SOCK_STREAM, 0);
+						server = gethostbyname("54.174.136.215");
+						bzero((char *) &serv_addr, sizeof(serv_addr));
+						serv_addr.sin_port = htons(portno);
+						connect(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr));
+						bzero(buffer, 1024);
+						buffer << sn << "\t";
 				}
-					
 				int middle = stateTable[i].size();
-				myfile.open ("~/0adtestdata/testplayer" + std::to_string((_Longlong) i) + ".txt");
 				myfile << "state\t\t"
 					   << "food\t\tdFood\t\t"
 					   << "wood\t\tdWood\t\t"
@@ -417,17 +436,18 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();
+					
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
-						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
-						try
-						{
+							myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
 							buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
-							bzero(buffer, 1024);
-							n = write(sockfd, buffer, strlen(buffer));
-						}
 					}
 					myfile << "null\n";
+					buffer << "null\n";
+					try
+					{
+						n = write(sockfd, buffer, strlen(buffer));
+					}
 				}
 				myfile.close();
 			}
