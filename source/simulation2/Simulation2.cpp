@@ -802,6 +802,20 @@ std::vector<std::vector<std::vector<int32_t>>> CSimulation2::getStateTable()
 }
 
 //DC
+//get the player label list from the component manager
+std::vector<std::string> CSimulation2::getPlayerLabels()
+{
+	return m->m_ComponentManager.cGetPlayerLabels();
+}
+
+//DC
+//send the user message to the component manager to add to the player label list
+void CSimulation2::getmsg( std::string msg )
+{
+	return m->m_ComponentManager.getmsg( msg );
+}
+
+//DC
 void CSimulation2::addPlayerState()
 {
 	return m->m_ComponentManager.cAddPlayerStates();

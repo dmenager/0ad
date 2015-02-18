@@ -135,6 +135,8 @@ public:
 	 */
 	int32_t getUnitsTrained();
 	std::vector<std::vector<std::vector<int32_t>>> getStateTable();
+	void CSimulation2::getmsg( std::string msg );
+	std::vector<std::string> CSimulation2::getPlayerLabels();
 	void addPlayerState();
 
 

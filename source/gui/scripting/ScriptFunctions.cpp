@@ -19,6 +19,9 @@
 
 #include "scriptinterface/ScriptInterface.h"
 
+#include <locale>
+#include <codecvt>
+
 #include "graphics/Camera.h"
 #include "graphics/GameView.h"
 #include "graphics/MapReader.h"
@@ -423,6 +426,13 @@ void ClearAllPlayerReady (ScriptInterface::CxPrivate* UNUSED(pCxPrivate))
 void SendNetworkChat(ScriptInterface::CxPrivate* UNUSED(pCxPrivate), std::wstring message)
 {
 	ENSURE(g_NetClient);
+
+	//DC
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+
+	CSimulation2* sim = g_Game->GetSimulation2();
+
+	sim->getmsg( myconv.to_bytes(message) );
 
 	g_NetClient->SendChatMessage(message);
 }

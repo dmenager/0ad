@@ -58,7 +58,7 @@ public:
 CComponentManager::CComponentManager(CSimContext& context, shared_ptr<ScriptRuntime> rt, bool skipScriptFunctions) :
 	m_NextScriptComponentTypeId(CID__LastNative),
 	m_ScriptInterface("Engine", "Simulation", rt),
-	m_SimContext(context), m_CurrentlyHotloading(false)
+	m_SimContext(context), m_CurrentlyHotloading(false), m_playerLabel( "null" )
 	//DC//
 	, m_makeOutside(true)
 {
@@ -966,6 +966,13 @@ int32_t CComponentManager::cGetUnitsTrained()
 }
 
 //DC
+//get msg from chat for player label
+void CComponentManager::getmsg( std::string msg )
+{
+	m_playerLabel = msg;
+}
+
+//DC
 /*
 *  Function for building player state tables
 */
@@ -1041,16 +1048,32 @@ void CComponentManager::cAddPlayerStates()
 					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( delta );
 					m_playerPrevState[i][j] = cur;
 				}
+
+				//If human player, update label list
+				if( i == 1)
+				{
+					m_playerLabels.push_back( m_playerLabel );
+					m_playerLabel = "null";
+				}
 			}
 		}
 	}
 }
+
+
 
 //DC
 //Return the state table to caller
 std::vector<std::vector<std::vector<int32_t>>> CComponentManager::cGetStateTable()
 {
 	return m_playerStateTables;
+}
+
+//DC
+//return human players labels
+std::vector<std::string> CComponentManager::cGetPlayerLabels()
+{
+	return m_playerLabels;
 }
 
 

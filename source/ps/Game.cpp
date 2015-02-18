@@ -297,12 +297,12 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 	// Generate serial number based on time and date, as well as player. pssmmhhddmmyyyy
 	now = time(0);
 	ltm = gmtime(&now);
-	year = std::to_string(1900 + ltm->tm_year);
-	month = std::to_string (1 + ltm->tm_mon);
-	day = std::to_string (ltm->tm_mday);
-	hour = std::to_string (ltm->tm_hour);
-	minute = std::to_string (ltm->tm_min + 1);
-	second = std::to_string (ltm-> tm_sec);
+	year = std::to_string((_Longlong) 1900 + ltm->tm_year);
+	month = std::to_string ((_Longlong) 1 + ltm->tm_mon);
+	day = std::to_string ((_Longlong) ltm->tm_mday);
+	hour = std::to_string ((_Longlong) ltm->tm_hour);
+	minute = std::to_string ((_Longlong) ltm->tm_min + 1);
+	second = std::to_string ((_Longlong) ltm-> tm_sec);
 
 	RegisterInit(attribs, savedState);
 }
@@ -334,6 +334,8 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			
 			std::ofstream myfile;
 			std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation->getStateTable();
+			std::vector<std::string> playerLabels = simulation->getPlayerLabels();
+
 			int outside = stateTable.size();
 			// Players
 #ifdef _WIN32
@@ -341,7 +343,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			{			
 				// Add the player to the generated serial number.
 				std::string stri;
-				stri = std::to_string (i);
+				stri = std::to_string ((_Longlong) i);
 				std::string sn = stri + second + minute + hour + day + month + year;
 				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
@@ -377,7 +379,14 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					{
 						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t\t";
 					}
-					myfile << "null\n";
+
+					//write the user inputed labels
+					if( i == 1 )
+					{
+						myfile << playerLabels[j] << std::endl;
+					}
+					else
+						myfile << "null\n";
 				}
 				myfile.close();
 			}
@@ -442,8 +451,19 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 							myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
 							buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
 					}
-					myfile << "null\n";
-					buffer << "null\n";
+
+					//write the user inputed labels
+					if( i == 1 )
+					{
+						myfile << playerLabels[j] << std::endl;
+						buffer << playerLabels[j] << std::endl;
+					}
+					else
+					{
+						myfile << "null\n";
+						buffer << "null\n";
+					}
+
 					try
 					{
 						n = write(sockfd, buffer, strlen(buffer));
