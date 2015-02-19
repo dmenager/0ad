@@ -411,7 +411,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 
 				// Socket shenanigans.
 				int sockfd;
-				int portno = 3000;
+				int portno = SERVER_PORT; //SERVER_PORT in SocketClient.h
 				int n;
 				char buffer[1024];
 				struct sockaddr_in serv_addr;
@@ -419,7 +419,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				try
 				{
 						sockfd = socket(AF_INET, SOCK_STREAM, 0);
-						server = gethostbyname("54.174.136.215");
+						server = gethostbyname(SERVER_ADDR); //SERVER_ADDR in SocketClient.h
 						bzero((char *) &serv_addr, sizeof(serv_addr));
 						serv_addr.sin_port = htons(portno);
 						connect(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr));

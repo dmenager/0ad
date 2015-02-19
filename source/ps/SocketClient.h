@@ -3,7 +3,7 @@
 
 #include <string>
 #define SERVER_ADDR "54.174.136.215"
-#define SERVER_PORT 3003
+#define SERVER_PORT 3000
 
 int sendtoServer_Windows(std::string str);
 
