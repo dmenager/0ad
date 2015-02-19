@@ -18,6 +18,7 @@
 #include "precompiled.h"
 
 #include "Game.h"
+#include "SocketClient.h"
 
 #include "graphics/GameView.h"
 #include "graphics/LOSTexture.h"
@@ -345,6 +346,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				std::string stri;
 				stri = std::to_string ((_Longlong) i);
 				std::string sn = stri + second + minute + hour + day + month + year;
+				std::string buffer_Windows = sn + "\t";
 				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
 				
@@ -378,15 +380,22 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
 						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t\t";
+						buffer_Windows += std::to_string( (_Longlong) stateTable[i][j][k] ) + "\t";
 					}
 
 					//write the user inputed labels
 					if( i == 1 )
 					{
 						myfile << playerLabels[j] << std::endl;
+						buffer_Windows = buffer_Windows + playerLabels[j] + "\n";
 					}
 					else
+					{
 						myfile << "null\n";
+						buffer_Windows += "null\n";
+					}
+
+					sendtoServer_Windows(buffer_Windows);
 				}
 				myfile.close();
 			}
