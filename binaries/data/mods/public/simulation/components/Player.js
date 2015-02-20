@@ -45,6 +45,27 @@ Player.prototype.Init = function()
 	this.disabledTemplates = {};
 };
 
+//DC
+Player.prototype.getResource = function(feature)
+{
+	switch (feature)
+	{
+		case 1:
+			return this.resourceCount.food;
+		break;
+		case 2:
+			return this.resourceCount.wood;
+		break;
+		case 3:
+			return this.resourceCount.metal;
+		break;
+		case 4:
+			return this.resourceCount.stone;
+		break;
+	}
+	return -1;
+};
+
 Player.prototype.SetPlayerID = function(id)
 {
 	this.playerID = id;

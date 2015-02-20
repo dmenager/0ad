@@ -69,8 +69,15 @@ PlayerManager.prototype.GetPlayerUnitsTrained = function()
 PlayerManager.prototype.GetPlayerData = function( player, feature )
 {
 		var playerEnt = this.GetPlayerByID(player);
+		var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
 		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
-		return cmpPlayerStatisticsTracker.GetPlayerData(feature);
+		
+		if( feature < 5 )
+		{
+			return cmpPlayer.getResource(feature);			
+		}
+		else
+			return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
 
 PlayerManager.prototype.GetNumPlayers = function()
