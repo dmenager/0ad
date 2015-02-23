@@ -40,6 +40,7 @@ public:
 		return m_Script.Call<int32_t>("GetNumPlayers");
 	}
 
+	//DC
 	virtual int32_t GetNumUnitsTrained()
 	{
 		return m_Script.Call<int32_t>("GetPlayerUnitsTrained");
@@ -54,6 +55,12 @@ public:
 	{
 		return m_Script.Call<entity_id_t>("GetPlayerByID", (int)id);
 	}
+
+	virtual bool GetPlayerStatus(int32_t player) 
+	{
+		return m_Script.Call<bool>("GetPlayerStatus", player);
+	}
+
 };
 
 REGISTER_COMPONENT_SCRIPT_WRAPPER(PlayerManagerScripted)

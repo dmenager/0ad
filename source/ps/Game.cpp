@@ -326,9 +326,8 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	if (deltaSimTime)
 	{
 		count++;
-		// This time is affected by processing speed, so, I don't know what to do about interval yet, but this is about 30 seconds on an i5 with 32 GB ram
-		// Everyone will need to play with this for the time being, try to get it to be around 30 seconds.
-		if (count >= 500) {
+		//TODO: Replace count by using gmtime() to get consistent and percise state updates
+		if (count >= 3750) {
 			count = 0;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
@@ -395,7 +394,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 						buffer_Windows += "null\n";
 					}
 
-					sendtoServer_Windows(buffer_Windows);
+					//sendtoServer_Windows(buffer_Windows);
 				}
 				myfile.close();
 			}

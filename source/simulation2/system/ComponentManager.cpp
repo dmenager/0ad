@@ -1032,28 +1032,32 @@ void CComponentManager::cAddPlayerStates()
 			//player 0 is not a real player so do not collect thier info.
 			for( int i = 0; i < numPlayers; i++ )
 			{
-				m_playerStateTables[i].push_back( std::vector<int32_t>() );
-
-				//add the state number in the first spot
-				m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( m_playerStateTables[i].size()-1 );
-
-				//gather each feature data from statsTracker
-				//23 features atm
-				for( int j = 1; j < 23; j++ )
+				//Check if player is still in game, if not do not collect info
+				if( bit->GetPlayerStatus( i ) )
 				{
-					cur = bit->GetPlayerData( i, j );
-					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( cur );
-					prev = m_playerPrevState[i][j];
-					delta = cur - prev;
-					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( delta );
-					m_playerPrevState[i][j] = cur;
-				}
+					m_playerStateTables[i].push_back( std::vector<int32_t>() );
 
-				//If human player, update label list
-				if( i == 1)
-				{
-					m_playerLabels.push_back( m_playerLabel );
-					m_playerLabel = "null";
+					//add the state number in the first spot
+					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( m_playerStateTables[i].size()-1 );
+
+					//gather each feature data from statsTracker
+					//23 features atm
+					for( int j = 1; j < 23; j++ )
+					{
+						cur = bit->GetPlayerData( i, j );
+						m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( cur );
+						prev = m_playerPrevState[i][j];
+						delta = cur - prev;
+						m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( delta );
+						m_playerPrevState[i][j] = cur;
+					}
+
+					//If human player, update label list
+					if( i == 1)
+					{
+						m_playerLabels.push_back( m_playerLabel );
+						m_playerLabel = "null";
+					}
 				}
 			}
 		}

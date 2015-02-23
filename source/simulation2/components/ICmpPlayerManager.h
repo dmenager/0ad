@@ -36,6 +36,8 @@ public:
 
 	virtual entity_id_t GetPlayerByID(int32_t id) = 0;
 
+	virtual bool GetPlayerStatus(int32_t player) = 0;
+
 	DECLARE_INTERFACE_TYPE(PlayerManager)
 };
 

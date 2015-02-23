@@ -66,6 +66,15 @@ Player.prototype.getResource = function(feature)
 	return -1;
 };
 
+//DC
+Player.prototype.getStatus = function()
+{
+	if( this.state == "active" )
+		return true;
+	else
+		return false;
+}
+
 Player.prototype.SetPlayerID = function(id)
 {
 	this.playerID = id;

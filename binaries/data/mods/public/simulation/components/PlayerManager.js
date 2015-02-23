@@ -80,6 +80,14 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 			return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
 
+//DC
+PlayerManager.prototype.GetPlayerStatus = function( player )
+{
+	var playerEnt = this.GetPlayerByID(player);
+	var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
+	return cmpPlayer.getStatus();
+}
+
 PlayerManager.prototype.GetNumPlayers = function()
 {
 	return this.playerEntities.length;
