@@ -796,7 +796,7 @@ int32_t CSimulation2::getUnitsTrained()
 
 //DC
 //get the state table from the component manager
-std::vector<std::vector<std::vector<int32_t>>> CSimulation2::getStateTable()
+std::vector<std::vector<std::vector<int32_t> > > CSimulation2::getStateTable()
 {
 	return m->m_ComponentManager.cGetStateTable();
 }

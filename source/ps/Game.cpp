@@ -327,7 +327,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	{
 		count++;
 		//TODO: Replace count by using gmtime() to get consistent and percise state updates
-		if (count >= 3750) {
+		if (count >= 3600) {
 			count = 0;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
@@ -349,7 +349,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
 				
-				myfile << "state\t\t"
+				myfile << "time\t\t"
 					   << "food\t\tdFood\t\t"
 					   << "wood\t\tdWood\t\t"
 					   << "stone\t\tdStone\t\t"
@@ -426,7 +426,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 						buffer << sn << "\t";
 				}
 				int middle = stateTable[i].size();
-				myfile << "state\t\t"
+				myfile << "time\t\t"
 					   << "food\t\tdFood\t\t"
 					   << "wood\t\tdWood\t\t"
 					   << "stone\t\tdStone\t\t"

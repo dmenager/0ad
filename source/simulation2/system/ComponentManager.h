@@ -103,7 +103,7 @@ public:
 
 	//DC
 	//Return the state table vector
-	std::vector<std::vector<std::vector<int32_t>>> cGetStateTable();
+	std::vector<std::vector<std::vector<int32_t> > > cGetStateTable();
 	std::string										m_playerLabel;
 	void getmsg( std::string msg );
 	std::vector<std::string>					   cGetPlayerLabels();
@@ -342,8 +342,8 @@ private:
 	//Outside Vector - each player in game - size 6 ( up to six players )
 	//Middle vecotr - table of states - size n ( n number of states per game )
 	//Inner Vector - individual states - size = number of features;
-	std::vector<std::vector<std::vector<int32_t>>> m_playerStateTables;
-	std::vector<std::vector<int32_t>>			   m_playerPrevState;
+	std::vector<std::vector<std::vector<int32_t> > > m_playerStateTables;
+	std::vector<std::vector<int32_t> >			   m_playerPrevState;
 	std::vector<std::string>					   m_playerLabels;
 
 	bool m_makeOutside;

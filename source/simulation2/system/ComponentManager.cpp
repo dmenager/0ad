@@ -1038,7 +1038,7 @@ void CComponentManager::cAddPlayerStates()
 					m_playerStateTables[i].push_back( std::vector<int32_t>() );
 
 					//add the state number in the first spot
-					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( m_playerStateTables[i].size()-1 );
+					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( bit->GetPlayerData( i, 0 ) );
 
 					//gather each feature data from statsTracker
 					//23 features atm

@@ -70,11 +70,31 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 {
 		var playerEnt = this.GetPlayerByID(player);
 		var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
+		var cmpIdentity = Engine.QueryInterface(playerEnt, IID_Identity);
+		var cmpTechnologyManager = Engine.QueryInterface(playerEnt, IID_TechnologyManager)
 		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
+		var cmpTimer = Engine.QueryInterface(SYSTEM_ENTITY, IID_Timer);
 		
-		if( feature < 5 )
+		
+		var className = "";
+		
+		if( feature == 0)
+		{
+			return cmpTimer.GetTime() / 60000;
+		}
+		else if( feature > 0 && feature < 5 )
 		{
 			return cmpPlayer.getResource(feature);			
+		}
+		else if( feature == 5)
+		{
+			var classCounts = cmpTechnologyManager.GetClassCounts();
+			switch ( feature ) 
+			{
+				case 5:
+				//works build off of this tomorrow
+					return classCounts["Unit"];
+			}
 		}
 		else
 			return cmpPlayerStatisticsTracker.GetPlayerData(feature);

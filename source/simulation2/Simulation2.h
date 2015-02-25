@@ -134,9 +134,9 @@ public:
 	 * get the componenet name associated with the given cid
 	 */
 	int32_t getUnitsTrained();
-	std::vector<std::vector<std::vector<int32_t>>> getStateTable();
-	void CSimulation2::getmsg( std::string msg );
-	std::vector<std::string> CSimulation2::getPlayerLabels();
+	std::vector<std::vector<std::vector<int32_t> > > getStateTable();
+	void getmsg( std::string msg );
+	std::vector<std::string> getPlayerLabels();
 	void addPlayerState();
 
 
