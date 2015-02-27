@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "precompiled.h"
 #include "SocketClient.h"
 #include <WS2tcpip.h>
@@ -134,3 +135,4 @@ int writeToServer_Windows (std::string str, SOCKET sock) {
 	}
 	return 0;
 }
+#endif
