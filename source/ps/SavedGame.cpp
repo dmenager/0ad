@@ -32,6 +32,11 @@
 #include "scriptinterface/ScriptInterface.h"
 #include "simulation2/Simulation2.h"
 
+
+#ifndef _Longlong
+#define _Longlong long long
+#endif // _Longlong
+
 static const int SAVED_GAME_VERSION_MAJOR = 1; // increment on incompatible changes to the format
 static const int SAVED_GAME_VERSION_MINOR = 0; // increment on compatible changes to the format
 
@@ -103,11 +108,11 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	simulation.GetScriptInterface().SetProperty(cameraMetadata, "Zoom", g_Game->GetView()->GetCameraZoom());
 	simulation.GetScriptInterface().SetProperty(guiMetadata, "camera", cameraMetadata);
 	simulation.GetScriptInterface().SetProperty(metadata, "gui", guiMetadata);
-	
+
 	simulation.GetScriptInterface().SetProperty(metadata, "description", description);
-	
+
 	std::string metadataString = simulation.GetScriptInterface().StringifyJSON(&metadata, true);
-	
+
 	// Write the saved game as zip file containing the various components
 	PIArchiveWriter archiveWriter = CreateArchiveWriter_Zip(tempSaveFileRealPath, false);
 	if (!archiveWriter)
@@ -117,7 +122,7 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	//test component stuff
 	std::ofstream myfile;
 	myfile.open ("C:\\0adtestdata\\0adtestdata.txt");
-	myfile << "Units trained\n";	
+	myfile << "Units trained\n";
 
 	//simulation.SerializeState(myfile);
 
@@ -137,7 +142,7 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 
 	std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation.getStateTable();
 	int outside = stateTable.size();
-	
+
 	for(int i = 1; i < stateTable.size(); i++)
 	{
 		int middle = stateTable[i].size();
@@ -181,15 +186,15 @@ class CGameLoader
 {
 	NONCOPYABLE(CGameLoader);
 public:
-	
+
 	/**
 	 * @param scriptInterface the ScriptInterface used for loading metadata.
 	 * @param[out] savedState serialized simulation state stored as string of bytes,
 	 *	loaded from simulation.dat inside the archive.
 	 *
 	 * Note: We use a different approach for returning the string and the metadata JS::Value.
-	 * We use a pointer for the string to avoid copies (efficiency). We don't use this approach 
-	 * for the metadata because it would be error prone with rooting and the stack-based rooting 
+	 * We use a pointer for the string to avoid copies (efficiency). We don't use this approach
+	 * for the metadata because it would be error prone with rooting and the stack-based rooting
 	 * types and confusing (a chain of pointers pointing to other pointers).
 	 */
 	CGameLoader(ScriptInterface& scriptInterface, std::string* savedState) :
@@ -206,13 +211,13 @@ public:
 	{
 		JSContext* cx = m_ScriptInterface.GetContext();
 		JSAutoRequest rq(cx);
-		
+
 		if (pathname == L"metadata.json")
 		{
 			std::string buffer;
 			buffer.resize(fileInfo.Size());
 			WARN_IF_ERR(archiveFile->Load("", DummySharedPtr((u8*)buffer.data()), buffer.size()));
-			JS::RootedValue tmpMetadata(cx); // TODO: Check if this temporary root can be removed after SpiderMonkey 31 upgrade 
+			JS::RootedValue tmpMetadata(cx); // TODO: Check if this temporary root can be removed after SpiderMonkey 31 upgrade
 			m_ScriptInterface.ParseJSON(buffer, &tmpMetadata);
 			m_Metadata = CScriptValRooted(cx, tmpMetadata);
 		}
@@ -222,12 +227,12 @@ public:
 			WARN_IF_ERR(archiveFile->Load("", DummySharedPtr((u8*)m_SavedState->data()), m_SavedState->size()));
 		}
 	}
-	
+
 	JS::Value GetMetadata()
 	{
 		return m_Metadata.get();
 	}
-	
+
 private:
 
 	ScriptInterface& m_ScriptInterface;
@@ -256,7 +261,7 @@ Status SavedGames::Load(const std::wstring& name, ScriptInterface& scriptInterfa
 	WARN_RETURN_STATUS_IF_ERR(archiveReader->ReadEntries(CGameLoader::ReadEntryCallback, (uintptr_t)&loader));
 	metadata.set(loader.GetMetadata());
 
-	return INFO::OK;	
+	return INFO::OK;
 }
 
 std::vector<CScriptValRooted> SavedGames::GetSavedGames(ScriptInterface& scriptInterface)
@@ -264,7 +269,7 @@ std::vector<CScriptValRooted> SavedGames::GetSavedGames(ScriptInterface& scriptI
 	TIMER(L"GetSavedGames");
 	JSContext* cx = scriptInterface.GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	std::vector<CScriptValRooted> games;
 
 	Status err;
@@ -299,7 +304,7 @@ std::vector<CScriptValRooted> SavedGames::GetSavedGames(ScriptInterface& scriptI
 			continue; // skip this file
 		}
 		JS::RootedValue metadata(cx, loader.GetMetadata());
-		
+
 		JS::RootedValue game(cx);
 		scriptInterface.Eval("({})", &game);
 		scriptInterface.SetProperty(game, "id", pathnames[i].Basename());
@@ -332,16 +337,16 @@ bool SavedGames::DeleteSavedGame(const std::wstring& name)
 	return true;
 }
 
-CScriptValRooted SavedGames::GetEngineInfo(ScriptInterface& scriptInterface) 
-{ 
+CScriptValRooted SavedGames::GetEngineInfo(ScriptInterface& scriptInterface)
+{
 	JSContext* cx = scriptInterface.GetContext();
 	JSAutoRequest rq(cx);
-	
-	JS::RootedValue metainfo(cx); 
-	scriptInterface.Eval("({})", &metainfo); 
-	scriptInterface.SetProperty(metainfo, "version_major", SAVED_GAME_VERSION_MAJOR); 
-	scriptInterface.SetProperty(metainfo, "version_minor", SAVED_GAME_VERSION_MINOR); 
+
+	JS::RootedValue metainfo(cx);
+	scriptInterface.Eval("({})", &metainfo);
+	scriptInterface.SetProperty(metainfo, "version_major", SAVED_GAME_VERSION_MAJOR);
+	scriptInterface.SetProperty(metainfo, "version_minor", SAVED_GAME_VERSION_MINOR);
 	scriptInterface.SetProperty(metainfo, "mods"         , g_modsLoaded);
-	return CScriptValRooted(cx, metainfo); 
+	return CScriptValRooted(cx, metainfo);
 }
 

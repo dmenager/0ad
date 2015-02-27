@@ -156,7 +156,7 @@ void CComponentManager::Script_RegisterComponentType_Common(ScriptInterface::CxP
 	CComponentManager* componentManager = static_cast<CComponentManager*> (pCxPrivate->pCBData);
 	JSContext* cx = componentManager->m_ScriptInterface.GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	JS::RootedValue ctor(cx, ctor1.get()); // TODO: Get Handle parameter directly with SpiderMonkey 31
 
 	// Find the C++ component that wraps the interface
@@ -271,7 +271,7 @@ void CComponentManager::Script_RegisterComponentType_Common(ScriptInterface::CxP
 		return; // error
 
 	proto = protoVal.toObjectOrNull();
-	
+
 	if (!componentManager->m_ScriptInterface.EnumeratePropertyNamesWithPrefix(protoVal, "On", methods))
 		return; // error
 
@@ -438,7 +438,7 @@ CMessage* CComponentManager::ConstructMessage(int mtid, JS::HandleValue data)
 void CComponentManager::Script_PostMessage(ScriptInterface::CxPrivate* pCxPrivate, int ent, int mtid, CScriptVal data1)
 {
 	CComponentManager* componentManager = static_cast<CComponentManager*> (pCxPrivate->pCBData);
-	
+
 	JSContext* cx = componentManager->GetScriptInterface().GetContext();
 	JSAutoRequest rq(cx);
 	// TODO: With ESR31 we should be able to take JS::HandleValue directly
@@ -456,7 +456,7 @@ void CComponentManager::Script_PostMessage(ScriptInterface::CxPrivate* pCxPrivat
 void CComponentManager::Script_BroadcastMessage(ScriptInterface::CxPrivate* pCxPrivate, int mtid, CScriptVal data1)
 {
 	CComponentManager* componentManager = static_cast<CComponentManager*> (pCxPrivate->pCBData);
-	
+
 	JSContext* cx = componentManager->GetScriptInterface().GetContext();
 	JSAutoRequest rq(cx);
 	// TODO: With ESR31 we should be able to take JS::HandleValue directly
@@ -727,7 +727,7 @@ IComponent* CComponentManager::ConstructComponent(CEntityHandle ent, ComponentTy
 {
 	JSContext* cx = m_ScriptInterface.GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	std::map<ComponentTypeId, ComponentType>::const_iterator it = m_ComponentTypesById.find(cid);
 	if (it == m_ComponentTypesById.end())
 	{
@@ -750,7 +750,7 @@ IComponent* CComponentManager::ConstructComponent(CEntityHandle ent, ComponentTy
 
 	// If this is a scripted component, construct the appropriate JS object first
 	JS::RootedValue obj(cx);
-	// TODO: Check if this temporary root can be removed after SpiderMonkey 31 upgrade 
+	// TODO: Check if this temporary root can be removed after SpiderMonkey 31 upgrade
 	JS::RootedValue tmpCtor(cx, ct.ctor.get());
 	if (ct.type == CT_Script)
 	{
@@ -949,7 +949,7 @@ int32_t CComponentManager::cGetUnitsTrained()
 
 	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
 	{
-		//find playerManager component 
+		//find playerManager component
 		if( cit->first == 79)
 		{
 			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
@@ -985,7 +985,7 @@ void CComponentManager::cAddPlayerStates()
 
 	for (cit = m_ComponentsByTypeId.begin(); cit != m_ComponentsByTypeId.end(); ++cit)
 	{
-		//find playerManager component 
+		//find playerManager component
 		if( cit->first == 79)
 		{
 			std::map<entity_id_t, IComponent*>::const_iterator eit = cit->second.find(SYSTEM_ENTITY);
@@ -1003,7 +1003,7 @@ void CComponentManager::cAddPlayerStates()
 			{
 				for (int i = 0; i < numPlayers; i++)
 				{
-					m_playerStateTables.push_back( std::vector<std::vector<int32_t>>() );
+					m_playerStateTables.push_back( std::vector<std::vector<int32_t> >() );
 					m_playerPrevState.push_back( std::vector<int32_t>() );
 
 					for( int j = 0; j < 23; j++)
@@ -1068,7 +1068,7 @@ void CComponentManager::cAddPlayerStates()
 
 //DC
 //Return the state table to caller
-std::vector<std::vector<std::vector<int32_t>>> CComponentManager::cGetStateTable()
+std::vector<std::vector<std::vector<int32_t> > > CComponentManager::cGetStateTable()
 {
 	return m_playerStateTables;
 }
@@ -1318,11 +1318,11 @@ JS::Value CComponentManager::ReadJSONFile(ScriptInterface::CxPrivate* pCxPrivate
 	componentManager->GetScriptInterface().ReadJSONFile(path, &out);
 	return out.get();
 }
-	
+
 Status CComponentManager::FindJSONFilesCallback(const VfsPath& pathname, const CFileInfo& UNUSED(fileInfo), const uintptr_t cbData)
 {
 	FindJSONFilesCallbackData* data = (FindJSONFilesCallbackData*)cbData;
-	
+
 	VfsPath pathstem = pathname.ChangeExtension(L"");
 	// Strip the root from the path
 	std::wstring name = pathstem.string().substr(data->path.string().length());
@@ -1336,7 +1336,7 @@ std::vector<std::string> CComponentManager::Script_FindJSONFiles(ScriptInterface
 {
 	FindJSONFilesCallbackData cbData;
 	cbData.path = VfsPath(L"simulation/data/" + subPath + L"/");
-	
+
 	int dir_flags = 0;
 	if (recursive) {
 		dir_flags = vfs::DIR_RECURSIVE;
@@ -1350,6 +1350,6 @@ std::vector<std::string> CComponentManager::Script_FindJSONFiles(ScriptInterface
 		wchar_t error[200];
 		LOGERROR(L"Error reading directory '%ls': %ls", cbData.path.string().c_str(), StatusDescription(ret, error, ARRAY_SIZE(error)));
 	}
-	
+
 	return cbData.templates;
 }

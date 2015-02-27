@@ -55,6 +55,9 @@
 #include "i18n/L10n.h"
 #include "lib/utf8.h"
 
+#ifndef _Longlong
+#define _Longlong long long
+#endif // _Longlong
 extern bool g_GameRestarted;
 extern GameLoopState* g_AtlasGameLoop;
 
@@ -128,7 +131,7 @@ void CGame::RegisterInit(const JS::HandleValue attribs, const std::string& saved
 {
 	JSContext* cx = m_Simulation2->GetScriptInterface().GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	m_InitialSavedState = savedState;
 	m_IsSavedGame = !savedState.empty();
 
@@ -212,7 +215,7 @@ PSRETURN CGame::ReallyStartGame()
 {
 	JSContext* cx = m_Simulation2->GetScriptInterface().GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	// Call the script function InitGame only for new games, not saved games
 	if (!m_IsSavedGame)
 	{
@@ -239,7 +242,7 @@ PSRETURN CGame::ReallyStartGame()
 	Interpolate(0, 0);
 
 	m_GameStarted=true;
-	
+
 	// Render a frame to begin loading assets
 	if (CRenderer::IsInitialised())
 		Render();
@@ -291,7 +294,7 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 {
 	JSContext* cx = m_Simulation2->GetScriptInterface().GetContext();
 	JSAutoRequest rq(cx);
-	
+
 	JS::RootedValue attribs(cx, attribs1.get()); // TODO: Get Handle parameter directly with SpiderMonkey 31
 	m_ReplayLogger->StartGame(&attribs);
 
@@ -321,7 +324,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 
 	CSimulation2* simulation = g_Game->GetSimulation2();
 	const double deltaSimTime = deltaRealTime * m_SimRate;
-	
+
 	bool ok = true;
 	if (deltaSimTime)
 	{
@@ -331,7 +334,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			count = 0;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
-			
+
 			std::ofstream myfile;
 			std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation->getStateTable();
 			std::vector<std::string> playerLabels = simulation->getPlayerLabels();
@@ -340,7 +343,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			// Players
 #ifdef _WIN32
 			for(int i = 1; i < stateTable.size(); i++)
-			{			
+			{
 				// Add the player to the generated serial number.
 				std::string stri;
 				stri = std::to_string ((_Longlong) i);
@@ -348,7 +351,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				std::string buffer_Windows = sn + "\t";
 				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
-				
+
 				myfile << "time\t\t"
 					   << "food\t\tdFood\t\t"
 					   << "wood\t\tdWood\t\t"
@@ -453,7 +456,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();
-					
+
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
 							myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
@@ -501,7 +504,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 
 			GetView()->GetLOSTexture().MakeDirty();
 		}
-		
+
 		if (CRenderer::IsInitialised())
 			g_Renderer.GetTimeManager().Update(deltaSimTime);
 	}
