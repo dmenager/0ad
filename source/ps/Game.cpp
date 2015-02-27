@@ -18,8 +18,9 @@
 #include "precompiled.h"
 
 #include "Game.h"
+#ifdef _WIN32
 #include "SocketClient.h"
-
+#endif
 #include "graphics/GameView.h"
 #include "graphics/LOSTexture.h"
 #include "graphics/ParticleManager.h"
