@@ -19,8 +19,9 @@
 
 #include "scriptinterface/ScriptInterface.h"
 
-#include <locale>
-#include <codecvt>
+//DC
+//#include <locale>
+//#include <codecvt>
 
 #include "graphics/Camera.h"
 #include "graphics/GameView.h"
@@ -428,11 +429,14 @@ void SendNetworkChat(ScriptInterface::CxPrivate* UNUSED(pCxPrivate), std::wstrin
 	ENSURE(g_NetClient);
 
 	//DC
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+	//OLD CODE THAT LINUX HAD ISSUES WITH
+	//std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+	//sim->getmsg( myconv.to_bytes(message) );
 
 	CSimulation2* sim = g_Game->GetSimulation2();
 
-	sim->getmsg( myconv.to_bytes(message) );
+	std::string msg( message.begin(), message.end() );
+	sim->getmsg( msg );
 
 	g_NetClient->SendChatMessage(message);
 }
