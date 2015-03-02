@@ -140,7 +140,7 @@ Status SavedGames::Save(const std::wstring& name, const std::wstring& descriptio
 	myfile.close();
 	simulation.addPlayerState();
 
-	std::vector<std::vector<std::vector<int32_t>>> stateTable = simulation.getStateTable();
+	std::vector<std::vector<std::vector<int32_t> > > stateTable = simulation.getStateTable();
 	int outside = stateTable.size();
 
 	for(int i = 1; i < stateTable.size(); i++)
