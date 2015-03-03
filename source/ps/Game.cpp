@@ -18,9 +18,7 @@
 #include "precompiled.h"
 
 #include "Game.h"
-#ifdef _WIN32
 #include "SocketClient.h"
-#endif
 #include "graphics/GameView.h"
 #include "graphics/LOSTexture.h"
 #include "graphics/ParticleManager.h"
@@ -412,14 +410,14 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				myfile.close();
 			}
 #endif
-#ifdef linux
+#ifdef __linux
 			for(int i = 1; i < stateTable.size(); i++)
 			{
 				// Add the player to the generated serial number.
 				std::string stri;
-				stri = std::to_string (i);
+				stri = std::to_string ((_Longlong) i);
 				std::string sn = stri + second + minute + hour + day + month + year;
-				myfile.open ("~/0adtestdata/" + sn);
+				myfile.open ("~/0adtestdata/" + sn + ".txt");
 
 				// Socket shenanigans.
 				int sockfd;

@@ -5,6 +5,7 @@
 #define SERVER_ADDR "54.174.136.215"
 #define SERVER_PORT 3000
 
+#ifdef _WIN32
 int sendtoServer_Windows(std::string str);
-
+#endif
 #endif // INCLUDED_SOCKETCLIENT

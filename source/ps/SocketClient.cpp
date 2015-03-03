@@ -1,6 +1,7 @@
-#ifdef _WIN32
 #include "precompiled.h"
 #include "SocketClient.h"
+
+#ifdef _WIN32
 #include <WS2tcpip.h>
 
 #pragma comment (lib, "wsock32.lib")
