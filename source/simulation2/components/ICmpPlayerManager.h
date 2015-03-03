@@ -30,7 +30,7 @@ public:
 
 	virtual int32_t GetNumPlayers() = 0;
 
-	virtual int32_t GetNumUnitsTrained() = 0;
+	virtual int32_t GetGameTime() = 0;
 
 	virtual int32_t GetPlayerData( int32_t player, int32_t feature ) = 0;
 

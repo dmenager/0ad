@@ -787,10 +787,10 @@ int CSimulation2::ProgressiveLoad()
 
 //DC
 //std::string CSimulation2::getComponentName(int cid)
-int32_t CSimulation2::getUnitsTrained()
+int32_t CSimulation2::getGameTime()
 {
 	//return m->m_ComponentManager.LookupComponentTypeName(cid);
-	return m->m_ComponentManager.cGetUnitsTrained();
+	return m->m_ComponentManager.cGetGameTime();
 
 }
 

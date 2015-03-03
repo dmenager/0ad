@@ -133,7 +133,7 @@ public:
 	/**
 	 * get the componenet name associated with the given cid
 	 */
-	int32_t getUnitsTrained();
+	int32_t getGameTime();
 	std::vector<std::vector<std::vector<int32_t> > > getStateTable();
 	void getmsg( std::string msg );
 	std::vector<std::string> getPlayerLabels();

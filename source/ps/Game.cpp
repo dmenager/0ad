@@ -207,6 +207,12 @@ int CGame::LoadInitialState()
 	return 0;
 }
 
+//DC
+int prevTime = 0;
+int currTime = 0;
+time_t now;
+tm *ltm;
+
 /**
  * Game initialization has been completed. Set game started flag and start the session.
  *
@@ -270,6 +276,7 @@ PSRETURN CGame::ReallyStartGame()
 
 	//get initial State when game begins
 	m_Simulation2->addPlayerState();
+	prevTime = m_Simulation2->getGameTime();
 
 	return 0;
 }
@@ -288,8 +295,6 @@ void CGame::SetPlayerID(int playerID)
 
 int count = 0;
 std::string year, month, day, hour, minute, second;
-time_t now;
-tm *ltm;
 
 void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& savedState)
 {
@@ -312,6 +317,8 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 	RegisterInit(attribs, savedState);
 }
 
+
+
 // TODO: doInterpolate is optional because Atlas interpolates explicitly,
 // so that it has more control over the update rate. The game might want to
 // do the same, and then doInterpolate should be redundant and removed.
@@ -330,9 +337,11 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	if (deltaSimTime)
 	{
 		count++;
-		//TODO: Replace count by using gmtime() to get consistent and percise state updates
-		if (count >= 3600) {
-			count = 0;
+		currTime = m_Simulation2->getGameTime();
+
+		//Update and Record state every 30 seconds
+		if ( (currTime - prevTime) >= 30 ) {
+			prevTime = currTime;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
 

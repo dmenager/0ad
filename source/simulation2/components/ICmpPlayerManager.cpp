@@ -41,9 +41,9 @@ public:
 	}
 
 	//DC
-	virtual int32_t GetNumUnitsTrained()
+	virtual int32_t GetGameTime()
 	{
-		return m_Script.Call<int32_t>("GetPlayerUnitsTrained");
+		return m_Script.Call<int32_t>("GetPlayerData", 0, -1);
 	}
 
 	virtual int32_t GetPlayerData( int32_t player, int32_t feature )

@@ -941,9 +941,9 @@ void CComponentManager::FlushDestroyedComponents()
 
 //DC
 /*
-*  Test Function to see how extracting data worked
+*  Returns the current game time in seconds
 */
-int32_t CComponentManager::cGetUnitsTrained()
+int32_t CComponentManager::cGetGameTime()
 {
 	std::map<ComponentTypeId, std::map<entity_id_t, IComponent*> >::const_iterator cit;
 
@@ -960,7 +960,7 @@ int32_t CComponentManager::cGetUnitsTrained()
 			}
 			ICmpPlayerManager* bit = (ICmpPlayerManager*) eit->second;
 
-			return bit->GetNumUnitsTrained();
+			return bit->GetGameTime();
 		}
 	}
 }

@@ -99,7 +99,7 @@ public:
 	*  playersStateTables vector. 
 	*/
 	void cAddPlayerStates();
-	int32_t cGetUnitsTrained();
+	int32_t cGetGameTime();
 
 	//DC
 	//Return the state table vector

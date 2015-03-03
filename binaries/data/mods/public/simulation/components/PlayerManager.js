@@ -78,6 +78,10 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 		
 		var className = "";
 		
+		if( feature == -1 )
+		{
+			return cmpTimer.GetTime() / 1000;
+		}
 		if( feature == 0)
 		{
 			return cmpTimer.GetTime() / 60000;
