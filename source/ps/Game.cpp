@@ -419,6 +419,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 				std::string sn = stri + second + minute + hour + day + month + year;
 				myfile.open ("~/0adtestdata/" + sn + ".txt");
 
+    /*
 				// Socket shenanigans.
 				int sockfd;
 				int portno = SERVER_PORT; //SERVER_PORT in SocketClient.h
@@ -436,6 +437,11 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 						bzero(buffer, 1024);
 						buffer << sn << "\t";
 				}
+				catch(...)
+                {
+                    //do nothing
+                }
+      */
 				int middle = stateTable[i].size();
 				myfile << "time\t\t"
 					   << "food\t\tdFood\t\t"
@@ -468,25 +474,29 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
 							myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
-							buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
+							//buffer << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t";
 					}
 
 					//write the user inputed labels
 					if( i == 1 )
 					{
 						myfile << playerLabels[j] << std::endl;
-						buffer << playerLabels[j] << std::endl;
+						//buffer << playerLabels[j] << std::endl;
 					}
 					else
 					{
 						myfile << "null\n";
-						buffer << "null\n";
+						//buffer << "null\n";
 					}
 
 					try
 					{
-						n = write(sockfd, buffer, strlen(buffer));
+						//n = write(sockfd, buffer, strlen(buffer));
 					}
+                    catch(...)
+                    {
+                        //do nothing
+                    }
 				}
 				myfile.close();
 			}
