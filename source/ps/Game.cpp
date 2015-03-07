@@ -390,22 +390,32 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
 						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t\t";
-						buffer_Windows += std::to_string( (_Longlong) stateTable[i][j][k] ) + "\t";
+						if (j == stateTable[i].size()-1 && i == 1)
+							buffer_Windows += std::to_string( (_Longlong) stateTable[i][j][k] ) + "\t";
 					}
 
 					//write the user inputed labels
 					if( i == 1 )
 					{
 						myfile << playerLabels[j] << std::endl;
-						buffer_Windows = buffer_Windows + playerLabels[j] + "\n";
+						if (j == stateTable[i].size()-1 && i == 1)
+							buffer_Windows = buffer_Windows + playerLabels[j] + "\n";
 					}
 					else
 					{
 						myfile << "null\n";
-						buffer_Windows += "null\n";
+						if (j == stateTable[i].size()-1 && i == 1)
+							buffer_Windows += "null\n";
 					}
 
-					//sendtoServer_Windows(buffer_Windows);
+
+					if (j == stateTable[i].size()-1 && i == 1) {
+						char * receive_buffer;
+						receive_buffer = new char[BUFLEN];
+						receive_buffer = sendtoServer_Windows(buffer_Windows);
+
+						LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate(receive_buffer) + "\n").c_str());
+					}
 				}
 				myfile.close();
 			}
