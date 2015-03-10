@@ -36,6 +36,7 @@ struct CColor;
  * a set of attributes provided. The CGame object is also responsible for
  * maintaining the relations between CPlayer and CWorld, CSimulation and CWorld.
  **/
+void* sendState(void *p);
 class CGame
 {
 	NONCOPYABLE(CGame);
@@ -88,6 +89,8 @@ public:
 	bool Update(const double deltaRealTime, bool doInterpolate = true);
 
 	void Interpolate(float simFrameLength, float realFrameLength);
+	
+	
 
 	int GetPlayerID();
 	void SetPlayerID(int playerID);

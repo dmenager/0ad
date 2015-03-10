@@ -316,7 +316,7 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 }
 
 
-
+pthread_t stateThread;
 // TODO: doInterpolate is optional because Atlas interpolates explicitly,
 // so that it has more control over the update rate. The game might want to
 // do the same, and then doInterpolate should be redundant and removed.
@@ -327,18 +327,59 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 
 	if (!m_TurnManager)
 		return true;
-
-	CSimulation2* simulation = g_Game->GetSimulation2();
+	
 	const double deltaSimTime = deltaRealTime * m_SimRate;
 
 	bool ok = true;
 	if (deltaSimTime)
 	{
+		//Update and Record state every 30 seconds
 		count++;
 		currTime = m_Simulation2->getGameTime();
+		pthread_create(&stateThread, NULL, &sendState, NULL);
+		
+		// To avoid confusing the profiler, we need to trigger the new turn
+		// while we're not nested inside any PROFILE blocks
+		if (m_TurnManager->WillUpdate(deltaSimTime))
+			g_Profiler.Turn();
 
-		//Update and Record state every 30 seconds
-		if ( (currTime - prevTime) >= 30 ) {
+		// At the normal sim rate, we currently want to render at least one
+		// frame per simulation turn, so let maxTurns be 1. But for fast-forward
+		// sim rates we want to allow more, so it's not bounded by framerate,
+		// so just use the sim rate itself as the number of turns per frame.
+		size_t maxTurns = (size_t)m_SimRate;
+
+		if (m_TurnManager->Update(deltaSimTime, maxTurns))
+		{
+			{
+				PROFILE3("gui sim update");
+				g_GUI->SendEventToAll("SimulationUpdate");
+			}
+
+			GetView()->GetLOSTexture().MakeDirty();
+		}
+
+		if (CRenderer::IsInitialised())
+			g_Renderer.GetTimeManager().Update(deltaSimTime);
+		pthread_join(stateThread, NULL);
+	}
+
+	if (doInterpolate)
+	{
+		m_TurnManager->Interpolate(deltaSimTime, deltaRealTime);
+
+		if ( g_SoundManager )
+			g_SoundManager->IdleTask();
+	}
+
+	return ok;
+}
+
+void* sendState(void* p)
+{
+	CSimulation2* simulation = g_Game->GetSimulation2();
+			
+	if ( (currTime - prevTime) >= 30 ) {
 			prevTime = currTime;
 			LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate("Send State") + "\n").c_str());
 			simulation->addPlayerState();
@@ -407,7 +448,6 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 						if (j == stateTable[i].size()-1 && i == 1)
 							buffer_Windows += "null\n";
 					}
-
 
 					if (j == stateTable[i].size()-1 && i == 1) {
 						char * receive_buffer;
@@ -512,40 +552,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 			}
 #endif
 		}
-		// To avoid confusing the profiler, we need to trigger the new turn
-		// while we're not nested inside any PROFILE blocks
-		if (m_TurnManager->WillUpdate(deltaSimTime))
-			g_Profiler.Turn();
-
-		// At the normal sim rate, we currently want to render at least one
-		// frame per simulation turn, so let maxTurns be 1. But for fast-forward
-		// sim rates we want to allow more, so it's not bounded by framerate,
-		// so just use the sim rate itself as the number of turns per frame.
-		size_t maxTurns = (size_t)m_SimRate;
-
-		if (m_TurnManager->Update(deltaSimTime, maxTurns))
-		{
-			{
-				PROFILE3("gui sim update");
-				g_GUI->SendEventToAll("SimulationUpdate");
-			}
-
-			GetView()->GetLOSTexture().MakeDirty();
-		}
-
-		if (CRenderer::IsInitialised())
-			g_Renderer.GetTimeManager().Update(deltaSimTime);
-	}
-
-	if (doInterpolate)
-	{
-		m_TurnManager->Interpolate(deltaSimTime, deltaRealTime);
-
-		if ( g_SoundManager )
-			g_SoundManager->IdleTask();
-	}
-
-	return ok;
+		return NULL;
 }
 
 void CGame::Interpolate(float simFrameLength, float realFrameLength)
