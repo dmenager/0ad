@@ -401,36 +401,62 @@ void* sendState(void* p)
 				myfile.open ("C:\\0adtestdata\\" + sn + ".txt");
 				int middle = stateTable[i].size();
 
-				myfile << "time\t\t"
-					   << "food\t\tdFood\t\t"
-					   << "wood\t\tdWood\t\t"
-					   << "stone\t\tdStone\t\t"
-					   << "metal\t\tdMetal\t\t"
-					   << "inf\t\tdInf\t\t"
-					   << "wrkr\t\tdWrkr\t\t"
-					   << "fmales\t\tdFmales\t\t"
-					   << "cvlry\t\tdCvlry\t\t"
-					   << "chmp\t\tdChmp\t\t"
-					   << "hero\t\tdHero\t\t"
-					   << "ships\t\tdShips\t\t"
-					   << "house\t\tdHouse\t\t"
-					   << "econ\t\tdEcon\t\t"
-					   << "outpst\t\tdOutpst\t\t"
-					   << "mltry\t\tdMltry\t\t"
-					   << "fortr\t\tdFortr\t\t"
-					   << "civCnt\t\tdCivCnt\t\t"
-					   << "wndr\t\tdWndr\t\t"
-					   << "enK\t\tdEnK\t\t"
-					   << "enBldD\t\tdEnBldD\t\t"
-					   << "unitsL\t\tdUnitsL\t\t"
-					   << "bldL\t\tdBldL\t\tLabel\n";
+				//>>>>TODO : Add Good formatting by having a new column every x spaces
+				std::string tabs = "\t\t\t";
+
+				myfile << "time" + tabs
+					   << "CurrentFood"+tabs+"dCurrentFood"+tabs
+					   << "FoodUsed"+tabs+"dFoodUsed"+tabs
+					   << "FoodSold"+tabs+"dFoodSold"+tabs
+					   << "FoodBought"+tabs+"dFoodBought"+tabs
+					   << "FoodGathered"+tabs+"dFoodGathered"+tabs
+					   << "CurrentWood"+tabs+"dCurrentWood"+tabs
+					   << "WoodUsed"+tabs+"dWoodUsed"+tabs
+					   << "WoodSold"+tabs+"dWoodSold"+tabs
+					   << "WoodBought"+tabs+"dWoodBought"+tabs
+					   << "WoodGathered"+tabs+"dWoodGathered"+tabs
+					   << "CurrentMetal"+tabs+"dCurrentMetal"+tabs
+					   << "MetalUsed"+tabs+"dMetalUsed"+tabs
+					   << "MetalSold"+tabs+"dMetalSold"+tabs
+					   << "MetalBought"+tabs+"dMetalBought"+tabs
+					   << "MetalGathered"+tabs+"dMetalGathered"+tabs
+					   << "CurrentStone"+tabs+"dCurrentStone"+tabs
+					   << "StoneUsed"+tabs+"dStoneUsed"+tabs
+					   << "StoneSold"+tabs+"dStoneSold"+tabs
+					   << "StoneBought"+tabs+"dStoneBought"+tabs
+					   << "StoneGathered"+tabs+"dStoneGathered"+tabs
+					   << "CurrentInfantry"+tabs+"dCurrentInfantry"+tabs
+					   << "InfantryGained"+tabs+"dInfantryGained"+tabs
+					   << "InfantryLost"+tabs+"dInfantryLost"+tabs
+					   << "InfantryKilled"+tabs+"dInfantryKilled"+tabs
+					   << "CurrentCavalry"+tabs+"dCurrentCavalry"+tabs
+					   << "CavalryGained"+tabs+"dCavalryGained"+tabs
+					   << "CavalryLost"+tabs+"dCavalryLost"+tabs
+					   << "CavalryKilled"+tabs+"dCavalryKilled"+tabs
+					   << "CurrentSupport"+tabs+"dCurrentSupport"+tabs
+					   << "SupportGained"+tabs+"dSupportGained"+tabs
+					   << "SupportLost"+tabs+"dSupportLost"+tabs
+					   << "SupportKilled"+tabs+"dSupportKilled"+tabs
+					   << "CurrentSiege"+tabs+"dCurrentSiege"+tabs
+					   << "SiegeGained"+tabs+"dSiegeGained"+tabs
+					   << "SiegeLost"+tabs+"dSiegeLost"+tabs
+					   << "SiegeKilled"+tabs+"dSiegeKilled"+tabs
+					   << "CurrentShips"+tabs+"dCurrentShips"+tabs
+					   << "ShipsGained"+tabs+"dShipsGained"+tabs
+					   << "ShipsLost"+tabs+"dShipsLost"+tabs
+					   << "ShipsKilled"+tabs+"dShipsKilled"+tabs
+					   << "CurrentStructures"+tabs+"dCurrentStructures"+tabs
+					   << "StructuresGained"+tabs+"dStructuresGained"+tabs
+					   << "StructuresLost"+tabs+"dStructuresLost"+tabs
+					   << "StructuresDestroyed"+tabs+"dStructuresDestroyed"+tabs
+					   << "\n";
 
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
 					int inner = stateTable[i][j].size();
 					for(int k = 0; k < stateTable[i][j].size(); k++)
 					{
-						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) <<"\t\t";
+						myfile << std::to_string( (_Longlong) stateTable[i][j][k] ) << tabs;
 						if (j == stateTable[i].size()-1 && i == 1)
 							buffer_Windows += std::to_string( (_Longlong) stateTable[i][j][k] ) + "\t";
 					}

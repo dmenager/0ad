@@ -972,6 +972,78 @@ void CComponentManager::getmsg( std::string msg )
 	m_playerLabel = msg;
 }
 
+const int NUM_FEATURES = 45;
+//DC
+/*
+FEATURE INFO
+#	Name
+-------------------
+0	time
+
+The following will be total amounts and all have their own delta be recorded.
+In some cases, as in the gained and used features, we will only care about their deltas.
+
+1	Current Food
+2	Food Used
+3	Food Sold
+4	Food Bought
+5	Food Gathered
+6	Current Wood
+7	Wood Used
+8	Wood Sold
+9	Wood Bought
+10	Wood Gathered
+11	Current Metal
+12	Metal Used
+13	Metal Sold
+14	Metal Bought
+15	Metal Gathered
+16	Current Stone
+17	Stone Used
+18	Stone Sold
+19	Stone Bought
+20	Stone Gathered
+21	Current # Infantry XX
+22	Infantry Gained
+23	Infantry Lost
+24	Infantry Killed
+25	Current # Cavalry XX
+26	Cavalry Gained
+27	Cavalry Lost
+28	Cavalry Killed
+29	Current # Support  XX
+30	Support Gained
+31	Support Lost
+32	Support Killed
+33	Current # Siege  XX
+34	Siege Gained
+35	Siege Lost
+36	Siege Killed
+37	Current # Ships  XX
+38	Ships Gained
+39	Ships Lost
+40	Ships Killed
+41	Current # Structures  XX
+42	Structures Gained
+43	Structures Lost
+44	Structures Destroyed
+-------------------------------------
+
+XX -  indicates a features that I scrapped
+I'll further implement a way of making it really easy to mark scrap features so they dont get
+sent to to the server or recorded in the file.
+
+in a for loop from i = 0 to NUM_FEATURES
+2*i-1 = feature
+2*1 = feature's delta
+
+New Features should be added to the end of this list
+
+To add a feature, update NUM_FEATURES, go to game.cpp and update the labels accordingly
+and then go to playermanager.js and add a new conditional to actually get the data and
+return it.
+*/
+
 //DC
 /*
 *  Function for building player state tables
@@ -1006,23 +1078,30 @@ void CComponentManager::cAddPlayerStates()
 					m_playerStateTables.push_back( std::vector<std::vector<int32_t> >() );
 					m_playerPrevState.push_back( std::vector<int32_t>() );
 
-					for( int j = 0; j < 23; j++)
+					//Get the inital state for calculating deltas
+					for( int j = 0; j < NUM_FEATURES; j++)
 					{
-						if( j  > 0 && j < 5 )
-							m_playerPrevState[i].push_back( 300 );
-						else if ( j == 5 )
-							m_playerPrevState[i].push_back( 4 );
-						else if ( j == 6 )
-							m_playerPrevState[i].push_back( 8 );
-						else if ( j == 7 )
-							m_playerPrevState[i].push_back( 4 );
-						else if ( j == 8 )
-							m_playerPrevState[i].push_back( 1 );
-						else if ( j == 17 )
-							m_playerPrevState[i].push_back( 1 );
-						else
-							m_playerPrevState[i].push_back( 0 );
+						m_playerPrevState[i].push_back( 0 );
 
+						//The stat tracker for resources gathered is unreliable so this is how we're getting
+						//the separated resources gathered. Adding all the deductions back to the current 
+						// ( and the bought because its a separate form of gaining) you'll get the total gained 
+						// for the last state.
+						if( j == 5 || j == 10 || j == 15 || j == 20 )
+						{
+							int index = 2*i-1;
+							int bought	=	m_playerPrevState[i][index-2];
+							int sold	=	m_playerPrevState[i][index-4];
+							int used	=	m_playerPrevState[i][index-6];
+							int current =	m_playerPrevState[i][index-8];
+							int gathered = current + used + sold - bought;
+							cur = gathered;
+						}
+						else
+						{
+							cur = bit->GetPlayerData( i, j );
+						}
+						m_playerPrevState[i].push_back( cur );
 					}
 				}
 				m_makeOutside = false;
@@ -1037,14 +1116,31 @@ void CComponentManager::cAddPlayerStates()
 				{
 					m_playerStateTables[i].push_back( std::vector<int32_t>() );
 
-					//add the state number in the first spot
+					//add the game time in minutes for the the first spot
 					m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( bit->GetPlayerData( i, 0 ) );
 
 					//gather each feature data from statsTracker
 					//23 features atm
-					for( int j = 1; j < 23; j++ )
+					for( int j = 1; j < NUM_FEATURES; j++ )
 					{
-						cur = bit->GetPlayerData( i, j );
+						//The stat tracker for resources gathered is unreliable so this is how we're getting
+						//the separated resources gathered. Adding all the deductions back to the current 
+						// ( and the bought because its a separate form of gaining) you'll get the total gained 
+						// for the last state.
+						if( j == 5 || j == 10 || j == 15 || j == 20 )
+						{
+							int index = 2*j-1;
+							int bought	=	m_playerStateTables[i][m_playerStateTables[i].size()-1][index-2];
+							int sold	=	m_playerStateTables[i][m_playerStateTables[i].size()-1][index-4];
+							int used	=	m_playerStateTables[i][m_playerStateTables[i].size()-1][index-6];
+							int current =	m_playerStateTables[i][m_playerStateTables[i].size()-1][index-8];
+							int gathered = current + used + sold - bought;
+							cur = gathered;
+						}
+						else
+						{
+							cur = bit->GetPlayerData( i, j );
+						}
 						m_playerStateTables[i][m_playerStateTables[i].size()-1].push_back( cur );
 						prev = m_playerPrevState[i][j];
 						delta = cur - prev;

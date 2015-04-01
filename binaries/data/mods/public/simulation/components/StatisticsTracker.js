@@ -11,8 +11,8 @@ StatisticsTracker.prototype.Init = function()
 		"Worker",
 		"Female",
 		"Cavalry",
-		"Champion",
-		"Hero",
+		"Support",
+		"Siege",
 		"Ship"
 	];	
 	this.unitsTrained = {
@@ -20,8 +20,8 @@ StatisticsTracker.prototype.Init = function()
 		"Worker": 0,
 		"Female": 0,
 		"Cavalry": 0,
-		"Champion": 0,
-		"Hero": 0,
+		"Support": 0,
+		"Siege": 0,
 		"Ship": 0,
 		"total": 0
 	};
@@ -30,8 +30,8 @@ StatisticsTracker.prototype.Init = function()
 		"Worker": 0,
 		"Female": 0,
 		"Cavalry": 0,
-		"Champion": 0,
-		"Hero": 0,
+		"Support": 0,
+		"Siege": 0,
 		"Ship": 0,
 		"total": 0
 	};
@@ -41,8 +41,8 @@ StatisticsTracker.prototype.Init = function()
 		"Worker": 0,
 		"Female": 0,
 		"Cavalry": 0,
-		"Champion": 0,
-		"Hero": 0,
+		"Support": 0,
+		"Siege": 0,
 		"Ship": 0,
 		"total": 0
 	};
@@ -129,75 +129,99 @@ StatisticsTracker.prototype.GetNumUnitsTrained = function()
 
 StatisticsTracker.prototype.GetPlayerData = function( feature )
 {
-
 	switch ( feature ) {
-	case 1:
-		return (this.resourcesGathered.food + this.resourcesBought.food - this.resourcesUsed.food - this.resourcesSold.food + 300);
-		break;
 	case 2:
-		return this.resourcesGathered.wood + this.resourcesBought.wood - this.resourcesUsed.wood - this.resourcesSold.wood + 300;
+		return this.resourcesUsed.food;
 		break;
 	case 3:
-		return this.resourcesGathered.stone + this.resourcesBought.stone - this.resourcesUsed.stone - this.resourcesSold.stone + 300;
+		return this.resourcesSold.food;
 		break;
 	case 4:
-		return this.resourcesGathered.metal + this.resourcesBought.metal - this.resourcesUsed.metal - this.resourcesSold.metal + 300;
-		break;
-	case 5:
-		return this.unitsTrained.Infantry - this.unitsLost.Infantry + 4;
-		break;
-	case 6:
-		return this.unitsTrained.Worker - this.unitsLost.Worker + 8;
+		return this.resourcesBought.food;
 		break;
 	case 7:
-		return this.unitsTrained.Female - this.unitsLost.Female + 4;
+		return this.resourcesUsed.wood;
 		break;
 	case 8:
-		return this.unitsTrained.Cavalry - this.unitsLost.Cavalry + 1;
+		return this.resourcesSold.wood;
 		break;
 	case 9:
-		return this.unitsTrained.Champion - this.unitsLost.Champion;
-		break;
-	case 10:
-		return this.unitsTrained.Hero - this.unitsLost.Hero;
-		break;
-	case 11:
-		return this.unitsTrained.Ship - this.unitsLost.Ship;
+		return this.resourcesBought.wood;
 		break;
 	case 12:
-		return this.buildingsConstructed.House - this.buildingsLost.House;
+		return this.resourcesUsed.metal;
 		break;
 	case 13:
-		return this.buildingsConstructed.Economic - this.buildingsLost.Economic;
+		return this.resourcesSold.metal;
 		break;
 	case 14:
-		return this.buildingsConstructed.Outpost - this.buildingsLost.Outpost;
-		break;
-	case 15:
-		return this.buildingsConstructed.Military - this.buildingsLost.Military;
-		break;
-	case 16:
-		return this.buildingsConstructed.Fortress - this.buildingsLost.Fortress;
+		return this.resourcesBought.metal;
 		break;
 	case 17:
-		return this.buildingsConstructed.CivCentre - this.buildingsLost.CivCentre + 1;
+		return this.resourcesUsed.stone;
 		break;
 	case 18:
-		return this.buildingsConstructed.Wonder - this.buildingsLost.Wonder;
+		return this.resourcesSold.stone;
 		break;
 	case 19:
-		return this.enemyUnitsKilled.total;
-		break;
-	case 20:
-		return this.enemyBuildingsDestroyed.total;
-		break;
-	case 21:
-		return this.unitsLost.total;
+		return this.resourcesBought.stone;
 		break;
 	case 22:
+		return this.unitsTrained.Infantry;
+		break;
+	case 23:
+		return this.unitsLost.Infantry;
+		break;
+	case 24:
+		return this.enemyUnitsKilled.Infantry;
+		break;
+	case 26:
+		return this.unitsTrained.Cavalry;
+		break;
+	case 27:
+		return this.unitsLost.Cavalry;
+		break;
+	case 28:
+		return this.enemyUnitsKilled.Cavalry;
+		break;
+	case 30:
+		return this.unitsTrained.Support;
+		break;
+	case 31:
+		return this.unitsLost.Support;
+		break;
+	case 32:
+		return this.enemyUnitsKilled.Support;
+		break;
+	case 34:
+		return this.unitsTrained.Siege;
+		break;
+	case 35:
+		return this.unitsLost.Siege;
+		break;
+	case 36:
+		return this.enemyUnitsKilled.Siege;
+		break;
+	case 38:
+		return this.unitsTrained.Ship;
+		break;
+	case 39:
+		return this.unitsLost.Ship;
+		break;
+	case 40:
+		return this.enemyUnitsKilled.Ship;
+		break;
+	case 42:
+		return this.buildingsConstructed.total;
+		break;
+	case 43:
 		return this.buildingsLost.total;
 		break;
-}	
+	case 44:
+		return this.enemyBuildingsDestroyed.total;
+		break;
+}
+	return -1;
 	//return this.unitsTrained.total;
 };
 

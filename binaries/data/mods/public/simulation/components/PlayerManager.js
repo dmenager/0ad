@@ -65,6 +65,7 @@ PlayerManager.prototype.GetPlayerUnitsTrained = function()
 /**
  * parameters int player and int feature
  * This will return the requested feature data for the specified player
+ * For list of features see FEATURE INFO in ComponentManager.cpp
  */
 PlayerManager.prototype.GetPlayerData = function( player, feature )
 {
@@ -75,10 +76,9 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 		var cmpPlayerStatisticsTracker = Engine.QueryInterface(playerEnt, IID_StatisticsTracker);
 		var cmpTimer = Engine.QueryInterface(SYSTEM_ENTITY, IID_Timer);
 		
-		
 		var className = "";
 		
-		if( feature == -1 )
+		if( feature == -1)
 		{
 			return cmpTimer.GetTime() / 1000;
 		}
@@ -86,18 +86,47 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 		{
 			return cmpTimer.GetTime() / 60000;
 		}
-		else if( feature > 0 && feature < 5 )
+		else if( feature == 1 || feature == 6 || feature == 11 || feature == 16 )
 		{
-			return cmpPlayer.getResource(feature);			
+			switch ( feature ) 
+			{
+				case 1:
+					return cmpPlayer.getResource(1);
+					break;
+				case 6:
+					return cmpPlayer.getResource(2);
+					break;
+				case 11:
+					return cmpPlayer.getResource(3);
+					break;
+				case 16:
+					return cmpPlayer.getResource(4);
+					break;
+			}			
 		}
-		else if( feature == 5)
+		else if( feature == 21 || feature == 25 || feature == 29 || feature == 33 || feature == 37 || feature == 41)
 		{
 			var classCounts = cmpTechnologyManager.GetClassCounts();
 			switch ( feature ) 
 			{
-				case 5:
-				//works build off of this tomorrow
-					return classCounts["Unit"];
+				case 21:
+					return -1;//classCounts["Cav"];
+					break;
+				case 25:
+					return -1;//classCounts["Cavalry"];
+					break;
+				case 29:
+					return -1;//classCounts["Support"];
+					break;
+				case 33:
+					return -1;//classCounts["Siege"];
+					break;
+				case 37:
+					return -1;//classCounts["Ship"];
+					break;
+				case 41:
+					return -1;//classCounts["Structure"];
+					break;
 			}
 		}
 		else
