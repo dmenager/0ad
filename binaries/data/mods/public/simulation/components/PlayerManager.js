@@ -14,7 +14,7 @@ PlayerManager.prototype.Init = function()
 							  "support"  : [0,0,0,0,0,0] };
 	
 	// KW: The amount of distance for it to be considered a movement of units
-	this.posThreshold = 100;
+	this.posThreshold = 50;
 };
 
 PlayerManager.prototype.SetLastX = function(x, player, feature)
@@ -253,19 +253,27 @@ PlayerManager.prototype.GetAverageUnitsMovement = function( player, feature )
 		// Get information on the entities
 		var entState = cmpGuiInterface.GetEntityState (player, pEntities[i]);
 		var entExtendedState = cmpGuiInterface.GetExtendedEntityState (player, pEntities[i]);
-			
-		// Feature for military units
-		if (feature == 45 && entExtendedState.attack != null) { 
-			count++;
-			
-			positionTotalX += entState.position.x;
-			positionTotalZ += entState.position.z;
-		}
-		else if (feature == 46) {
-			count++;
-			
-			positionTotalX += entState.position.x;
-			positionTotalZ += entState.position.z;
+		if (entState.identity) {	
+			for (var j = 0; j < entState.identity.classes.length; j++) {
+				// Feature for military units (can attack)
+				if (feature == 45 && 
+					(entState.identity.classes[j] == "Soldier" 
+					|| entState.identity.classes[j] == "Siege")) { 
+					count++;
+					
+					positionTotalX += entState.position.x;
+					positionTotalZ += entState.position.z;
+					break;
+				}
+				// Feature for support units
+				else if (feature == 46 && entState.identity.classes[j] == "Support") {
+					count++;
+					
+					positionTotalX += entState.position.x;
+					positionTotalZ += entState.position.z;
+					break;
+				}
+			}
 		}
 	}
 	
