@@ -972,7 +972,7 @@ void CComponentManager::getmsg( std::string msg )
 	m_playerLabel = msg;
 }
 
-const int NUM_FEATURES = 45;
+const int NUM_FEATURES = 46;
 //DC
 /*
 FEATURE INFO

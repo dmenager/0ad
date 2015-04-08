@@ -6,6 +6,71 @@ PlayerManager.prototype.Schema =
 PlayerManager.prototype.Init = function()
 {
 	this.playerEntities = []; // list of player entity IDs
+	
+	// KW: Keep last average position of units for each player (6 players possible)
+	this.lastAvgUnitPosZ = { "military" : [0,0,0,0,0,0],
+							  "support"  : [0,0,0,0,0,0] };
+	this.lastAvgUnitPosX = { "military" : [0,0,0,0,0,0],
+							  "support"  : [0,0,0,0,0,0] };
+	
+	// KW: The amount of distance for it to be considered a movement of units
+	this.posThreshold = 100;
+};
+
+PlayerManager.prototype.SetLastX = function(x, player, feature)
+{
+	if (feature == 45)
+	{
+		this.lastAvgUnitPosX["military"][player-1] = x;
+	}
+	else if (feature == 46) 
+	{
+		this.lastAvgUnitPosX["support"][player-1] = x;
+	}
+};
+
+PlayerManager.prototype.SetLastZ = function(z, player, feature)
+{
+	if (feature == 45)
+	{
+		this.lastAvgUnitPosZ["military"][player-1] = z;
+	}
+	else if (feature == 46) 
+	{
+		this.lastAvgUnitPosZ["support"][player-1] = z;
+	}
+};
+
+PlayerManager.prototype.GetLastX = function( player, feature )
+{
+	if (feature == 45)
+	{
+		return this.lastAvgUnitPosX["military"][player-1];
+	}
+	else if (feature == 46)
+	{
+		return this.lastAvgUnitPosX["support"][player-1];
+	}
+	else 
+	{
+		return 0;
+	}
+};
+
+PlayerManager.prototype.GetLastZ = function( player, feature )
+{
+	if (feature == 45)
+	{
+		return this.lastAvgUnitPosZ["military"][player-1];
+	}
+	else if (feature == 46)
+	{
+		return this.lastAvgUnitPosZ["support"][player-1];
+	}
+	else
+	{
+		return 0;
+	}
 };
 
 PlayerManager.prototype.AddPlayer = function(ent)
@@ -129,6 +194,12 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 					break;
 			}
 		}
+		// KW: TODO: feature 46 - support movement. 
+		// Still need to change game.cpp and componentManager.cpp
+		// Also need to get the first position ever - find a function that determines the first position of every unit
+		else if (feature == 45 || feature == 46) {
+			return this.GetAverageUnitsMovement(player, feature);
+		}
 		else
 			return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
@@ -160,4 +231,69 @@ PlayerManager.prototype.GetAllPlayerEntities = function()
 {
 	return this.playerEntities;
 };
+
+// KW : function to get bool of average movements
+//    1 = movements occurred past posThreshold
+//    0 = movements did not occur past posThreshold 
+PlayerManager.prototype.GetAverageUnitsMovement = function( player, feature )
+{
+		// Open GuiInterface Interface
+	var cmpGuiInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+	
+	var count = 0;		
+	var positionTotalX = 0;
+	var positionTotalZ = 0;
+	
+	// Get all the entities that belong to the player
+	var pEntities = cmpGuiInterface.GetPlayerEntities(player);
+	
+	// Iterate through each entity
+	for (var i = 0; i < pEntities.length; i++) {
+		
+		// Get information on the entities
+		var entState = cmpGuiInterface.GetEntityState (player, pEntities[i]);
+		var entExtendedState = cmpGuiInterface.GetExtendedEntityState (player, pEntities[i]);
+			
+		// Feature for military units
+		if (feature == 45 && entExtendedState.attack != null) { 
+			count++;
+			
+			positionTotalX += entState.position.x;
+			positionTotalZ += entState.position.z;
+		}
+		else if (feature == 46) {
+			count++;
+			
+			positionTotalX += entState.position.x;
+			positionTotalZ += entState.position.z;
+		}
+	}
+	
+	// Get average of X and Z axis
+	var avgTroopPosX = positionTotalX/count;
+	var avgTroopPosZ = positionTotalZ/count;
+	
+	// Get the distance between (current average x and previous average x) and (current average z and previous average z)
+	var avgTroopMoveX = avgTroopPosX - this.GetLastX(player, feature);
+	var avgTroopMoveZ = avgTroopPosZ - this.GetLastZ(player, feature);
+	
+	// If the distance between the previous average point and current average point is different by a threshold
+	if (Math.sqrt((avgTroopMoveX * avgTroopMoveX) +
+				  (avgTroopMoveZ * avgTroopMoveZ))
+		> this.posThreshold)
+	{
+		// Set previous point to current point
+		this.SetLastX(avgTroopPosX, player, feature);
+		this.SetLastZ(avgTroopPosZ, player, feature);
+		return 1; // Movements occurred
+	}
+	else
+	{
+		// Set previous point to current point
+		this.SetLastX(avgTroopPosX, player, feature);
+		this.SetLastZ(avgTroopPosZ, player, feature);
+		return 0; // Movements did not occur :(
+	}
+};
+
 Engine.RegisterSystemComponentType(IID_PlayerManager, "PlayerManager", PlayerManager);
