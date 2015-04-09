@@ -200,6 +200,10 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 		else if (feature == 45 || feature == 46) {
 			return this.GetAverageUnitsMovement(player, feature);
 		}
+		else if ( feature == 47 )
+		{
+			return this.GetAlertLevel(player);
+		}
 		else
 			return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
@@ -231,6 +235,37 @@ PlayerManager.prototype.GetAllPlayerEntities = function()
 {
 	return this.playerEntities;
 };
+
+//  DC : function to detect if alert level has been raised
+//     1 = alert level is raised to some degree
+//	   0 = alert level is 0
+PlayerManager.prototype.GetAlertLevel = function( player )
+{
+	// Open GuiInterface Interface
+	var cmpGuiInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+	
+	// Get all the entities that belong to the player
+	var pEntities = cmpGuiInterface.GetPlayerEntities(player);
+	
+	// Iterate through each entity
+	for (var i = 0; i < pEntities.length; i++) {
+		
+		// Get information on the entities
+		var entState = cmpGuiInterface.GetEntityState (player, pEntities[i]);
+		
+		//check alert level of each entity
+		if (entState.alertRaiser != null )
+		{
+			if( entState.alertRaiser.hasRaisedAlert ) 
+			{
+				return 1;
+			}
+		}
+	}
+	
+	//if this point is reached, alert level is not raised
+	return 0;
+}
 
 // KW : function to get bool of average movements
 //    1 = movements occurred past posThreshold
