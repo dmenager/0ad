@@ -972,7 +972,7 @@ void CComponentManager::getmsg( std::string msg )
 	m_playerLabel = msg;
 }
 
-const int NUM_FEATURES = 47;
+const int NUM_FEATURES = 48;
 //DC
 /*
 FEATURE INFO
@@ -1027,6 +1027,10 @@ In some cases, as in the gained and used features, we will only care about their
 42	Structures Gained
 43	Structures Lost
 44	Structures Destroyed
+45  Avg Troop Position
+46	Avg Support Position
+47	Alert Raised
+48	Enemy Units Alive
 -------------------------------------
 
 XX -  indicates a features that I scrapped
