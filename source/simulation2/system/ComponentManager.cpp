@@ -62,6 +62,11 @@ CComponentManager::CComponentManager(CSimContext& context, shared_ptr<ScriptRunt
 	//DC//
 	, m_makeOutside(true)
 {
+	for( int i = 0; i < 7; i++)
+	{
+		m_Collect[i] = true;
+	}
+
 	context.SetComponentManager(this);
 
 	m_ScriptInterface.SetCallbackData(static_cast<void*> (this));
@@ -972,7 +977,7 @@ void CComponentManager::getmsg( std::string msg )
 	m_playerLabel = msg;
 }
 
-const int NUM_FEATURES = 48;
+const int NUM_FEATURES = 50;
 //DC
 /*
 FEATURE INFO
@@ -1030,7 +1035,8 @@ In some cases, as in the gained and used features, we will only care about their
 45  Avg Troop Position
 46	Avg Support Position
 47	Alert Raised
-48	Enemy Units Alive
+48	Player Won
+49	Player Defeated
 -------------------------------------
 
 XX -  indicates a features that I scrapped
@@ -1115,8 +1121,7 @@ void CComponentManager::cAddPlayerStates()
 			//player 0 is not a real player so do not collect thier info.
 			for( int i = 0; i < numPlayers; i++ )
 			{
-				//Check if player is still in game, if not do not collect info
-				if( bit->GetPlayerStatus( i ) )
+				if( m_Collect[i] )
 				{
 					m_playerStateTables[i].push_back( std::vector<int32_t>() );
 
@@ -1157,6 +1162,14 @@ void CComponentManager::cAddPlayerStates()
 					{
 						m_playerLabels.push_back( m_playerLabel );
 						m_playerLabel = "null";
+					}
+
+					//Check if player is still in game, if not do not collect info
+					//Still want to get the first instance of this being false 
+					//for playerWin and PLayerDefeated features
+					if( !bit->GetPlayerStatus( i ) )
+					{
+						m_Collect[i] = false;
 					}
 				}
 			}

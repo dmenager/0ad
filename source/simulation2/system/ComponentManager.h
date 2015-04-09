@@ -101,6 +101,7 @@ public:
 	void cAddPlayerStates();
 	int32_t cGetGameTime();
 
+
 	//DC
 	//Return the state table vector
 	std::vector<std::vector<std::vector<int32_t> > > cGetStateTable();
@@ -345,8 +346,9 @@ private:
 	std::vector<std::vector<std::vector<int32_t> > > m_playerStateTables;
 	std::vector<std::vector<int32_t> >			   m_playerPrevState;
 	std::vector<std::string>					   m_playerLabels;
-
 	bool m_makeOutside;
+	bool m_Collect[7];
+
 
 	std::map<MessageTypeId, CDynamicSubscription> m_DynamicMessageSubscriptionsNonsync;
 	std::map<IComponent*, std::set<MessageTypeId> > m_DynamicMessageSubscriptionsNonsyncByComponent;

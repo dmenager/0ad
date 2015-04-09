@@ -452,6 +452,8 @@ void* sendState(void* p)
 					   << "MilitaryMovementsOccurred"+tabs+"dMilitaryMovementsOccurred"+tabs
 					   << "SupportMovementsOccurred"+tabs+"dSupportMovementsOccurred"+tabs
 					   << "AlertRaised"+tabs+"dALertRaised"+tabs
+					   << "PlayerWon"+tabs+"dPlayerWon"+tabs
+					   << "PlayerDefeated"+tabs+"dPlayerDefeated"+tabs						
 					   << "\n";
 
 				for(int j = 0; j < stateTable[i].size(); j++)

@@ -204,6 +204,14 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 		{
 			return this.GetAlertLevel(player);
 		}
+		else if( feature == 48 )
+		{
+			return this.GetPlayerWon(player);
+		}
+		else if( feature == 49 )
+		{
+			return this.GetPlayerDefeated(player);
+		}
 		else
 			return cmpPlayerStatisticsTracker.GetPlayerData(feature);
 };
@@ -234,6 +242,42 @@ PlayerManager.prototype.RemoveAllPlayers = function()
 PlayerManager.prototype.GetAllPlayerEntities = function()
 {
 	return this.playerEntities;
+};
+
+// DC : return bool for players winning status
+// 		0 - player has not won the game
+//		1 - player has won the game
+PlayerManager.prototype.GetPlayerWon = function( player )
+{
+	var playerEnt = this.GetPlayerByID(player);
+	var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
+	
+	if ( cmpPlayer.getStatus() != "won" )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+};
+
+// DC : return bool for players defeated status
+// 		0 - player has not been defeated
+//		1 - player has been defeated
+PlayerManager.prototype.GetPlayerDefeated = function( player )
+{
+	var playerEnt = this.GetPlayerByID(player);
+	var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
+	
+	if ( cmpPlayer.getStatus() != "defeated" )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 };
 
 //  DC : function to detect if alert level has been raised
