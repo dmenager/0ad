@@ -455,7 +455,7 @@ void* sendState(void* p)
 					   << "DistanceEnemyBase"+tabs+"dDistanceEnemyBase"+tabs
 					   << "PlayerWon"+tabs+"dPlayerWon"+tabs
 					   << "PlayerDefeated"+tabs+"dPlayerDefeated"+tabs
-					   << "\n";
+					   << "label\n";
 
 				for(int j = 0; j < stateTable[i].size(); j++)
 				{
