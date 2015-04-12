@@ -977,7 +977,7 @@ void CComponentManager::getmsg( std::string msg )
 	m_playerLabel = msg;
 }
 
-const int NUM_FEATURES = 50;
+const int NUM_FEATURES = 51;
 //DC
 /*
 FEATURE INFO
@@ -1035,8 +1035,9 @@ In some cases, as in the gained and used features, we will only care about their
 45  Avg Troop Position
 46	Avg Support Position
 47	Alert Raised
-48	Player Won
-49	Player Defeated
+48	Distance of troops to nearest enemy base
+49	Player Won
+50	Player Defeated
 -------------------------------------
 
 XX -  indicates a features that I scrapped

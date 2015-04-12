@@ -194,21 +194,23 @@ PlayerManager.prototype.GetPlayerData = function( player, feature )
 					break;
 			}
 		}
-		// KW: TODO: feature 46 - support movement. 
-		// Still need to change game.cpp and componentManager.cpp
-		// Also need to get the first position ever - find a function that determines the first position of every unit
-		else if (feature == 45 || feature == 46) {
+		// KW TODO: Need to get the first position ever - find a function that determines the first position of every unit
+		else if ( feature == 45 || feature == 46 ) {
 			return this.GetAverageUnitsMovement(player, feature);
 		}
 		else if ( feature == 47 )
 		{
 			return this.GetAlertLevel(player);
 		}
-		else if( feature == 48 )
+		else if ( feature == 48 )
+		{
+			return this.GetTroopsToBaseDistance(player);
+		}
+		else if( feature == 49 )
 		{
 			return this.GetPlayerWon(player);
 		}
-		else if( feature == 49 )
+		else if( feature == 50 )
 		{
 			return this.GetPlayerDefeated(player);
 		}
@@ -311,12 +313,89 @@ PlayerManager.prototype.GetAlertLevel = function( player )
 	return 0;
 }
 
+// KW : function to get distance of troops to nearest enemy base
+PlayerManager.prototype.GetTroopsToBaseDistance = function ( player )
+{
+	// Open GuiInterface Interface
+	var cmpGuiInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+	
+	// Get player's average troop position
+	var count = 0;		
+	var positionTotalX = 0;
+	var positionTotalZ = 0;
+	
+	// Get all the entities that belong to the player
+	var pEntities = cmpGuiInterface.GetPlayerEntities(player);
+	
+	// Iterate through each entity
+	for (var i = 0; i < pEntities.length; i++) {
+		
+		// Get information on the entities
+		var entState = cmpGuiInterface.GetEntityState (player, pEntities[i]);
+		var entExtendedState = cmpGuiInterface.GetExtendedEntityState (player, pEntities[i]);
+		if (entState.identity) {	
+			for (var j = 0; j < entState.identity.classes.length; j++) {
+				// Military units (can attack)
+				if ((entState.identity.classes[j] == "Soldier" 
+					|| entState.identity.classes[j] == "Siege")
+					&& entState.position) { 
+					count++;
+					
+					positionTotalX += entState.position.x;
+					positionTotalZ += entState.position.z;
+					break;
+				}
+			}
+		}
+	}
+	
+	// Get average of X and Z axis
+	var avgTroopPosX = positionTotalX/count;
+	var avgTroopPosZ = positionTotalZ/count;
+	
+	// Get the minimum distance of troop's position and enemy base
+	var nearestDistance = Number.POSITIVE_INFINITY;
+	for (var i = 1; i <= this.playerEntities.length; i ++) {
+		if (player != i) {
+			var enemyEntities = cmpGuiInterface.GetPlayerEntities(i);
+			
+			for (var j = 0; j < enemyEntities.length; j++) {
+				// Get information on the entities
+				var enemyEntState = cmpGuiInterface.GetEntityState (i, enemyEntities[j]);
+				if (enemyEntState.identity) {
+					for (var k = 0; k < enemyEntState.identity.classes.length; k++) {
+						
+						// Find Civic Centre (which is the main base)
+						if (enemyEntState.identity.classes[k] == "CivCentre"
+							&& enemyEntState.position) {
+							var distanceBaseX = avgTroopPosX - enemyEntState.position.x;
+							var distanceBaseZ = avgTroopPosZ - enemyEntState.position.z;
+							
+							var distanceTroopsToBase = 
+								Math.abs(Math.sqrt((distanceBaseX * distanceBaseX) +(distanceBaseZ * distanceBaseZ)));
+							
+							// If the distance of the current base is smaller, make it the smallest
+							if (distanceTroopsToBase < nearestDistance) {
+								nearestDistance = distanceTroopsToBase;
+							}
+							
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return nearestDistance;
+}
+
 // KW : function to get bool of average movements
 //    1 = movements occurred past posThreshold
 //    0 = movements did not occur past posThreshold 
 PlayerManager.prototype.GetAverageUnitsMovement = function( player, feature )
 {
-		// Open GuiInterface Interface
+	// Open GuiInterface Interface
 	var cmpGuiInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
 	
 	var count = 0;		
@@ -337,7 +416,8 @@ PlayerManager.prototype.GetAverageUnitsMovement = function( player, feature )
 				// Feature for military units (can attack)
 				if (feature == 45 && 
 					(entState.identity.classes[j] == "Soldier" 
-					|| entState.identity.classes[j] == "Siege")) { 
+					|| entState.identity.classes[j] == "Siege")
+					&& entState.position) { 
 					count++;
 					
 					positionTotalX += entState.position.x;
@@ -345,7 +425,9 @@ PlayerManager.prototype.GetAverageUnitsMovement = function( player, feature )
 					break;
 				}
 				// Feature for support units
-				else if (feature == 46 && entState.identity.classes[j] == "Support") {
+				else if (feature == 46 
+						 && entState.identity.classes[j] == "Support"
+						 && entState.position) {
 					count++;
 					
 					positionTotalX += entState.position.x;
