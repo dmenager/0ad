@@ -36,7 +36,7 @@ struct CColor;
  * a set of attributes provided. The CGame object is also responsible for
  * maintaining the relations between CPlayer and CWorld, CSimulation and CWorld.
  **/
-void* sendState(void *p);
+void sendState();
 class CGame
 {
 	NONCOPYABLE(CGame);

@@ -316,7 +316,7 @@ void CGame::StartGame(const CScriptValRooted& attribs1, const std::string& saved
 }
 
 
-pthread_t stateThread;
+//pthread_t stateThread;
 // TODO: doInterpolate is optional because Atlas interpolates explicitly,
 // so that it has more control over the update rate. The game might want to
 // do the same, and then doInterpolate should be redundant and removed.
@@ -336,8 +336,9 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 		//Update and Record state every 30 seconds
 		count++;
 		currTime = m_Simulation2->getGameTime();
-		pthread_create(&stateThread, NULL, &sendState, NULL);
-		
+		//pthread_create(&stateThread, NULL, &sendState, NULL);
+
+		sendState();
 		// To avoid confusing the profiler, we need to trigger the new turn
 		// while we're not nested inside any PROFILE blocks
 		if (m_TurnManager->WillUpdate(deltaSimTime))
@@ -361,7 +362,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 
 		if (CRenderer::IsInitialised())
 			g_Renderer.GetTimeManager().Update(deltaSimTime);
-		pthread_join(stateThread, NULL);
+		//pthread_join(stateThread, NULL);
 	}
 
 	if (doInterpolate)
@@ -375,7 +376,7 @@ bool CGame::Update(const double deltaRealTime, bool doInterpolate)
 	return ok;
 }
 
-void* sendState(void* p)
+void sendState()
 {
 	CSimulation2* simulation = g_Game->GetSimulation2();
 			
@@ -484,9 +485,9 @@ void* sendState(void* p)
 					if (j == stateTable[i].size()-1 && i == 1) {
 						char * receive_buffer;
 						receive_buffer = new char[BUFLEN];
-						receive_buffer = sendtoServer_Windows(buffer_Windows);
+						//receive_buffer = sendtoServer_Windows(buffer_Windows);
 
-						LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate(receive_buffer) + "\n").c_str());
+						//LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate(receive_buffer) + "\n").c_str());
 					}
 				}
 				myfile.close();
@@ -584,7 +585,7 @@ void* sendState(void* p)
 			}
 #endif
 		}
-		return NULL;
+		//return NULL;
 }
 
 void CGame::Interpolate(float simFrameLength, float realFrameLength)
