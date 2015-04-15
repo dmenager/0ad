@@ -254,7 +254,7 @@ PlayerManager.prototype.GetPlayerWon = function( player )
 	var playerEnt = this.GetPlayerByID(player);
 	var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
 	
-	if ( cmpPlayer.getStatus() != "won" )
+	if ( cmpPlayer.getWon() )
 	{
 		return 1;
 	}
@@ -272,7 +272,7 @@ PlayerManager.prototype.GetPlayerDefeated = function( player )
 	var playerEnt = this.GetPlayerByID(player);
 	var cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
 	
-	if ( cmpPlayer.getStatus() != "defeated" )
+	if ( cmpPlayer.getDefeated() )
 	{
 		return 1;
 	}

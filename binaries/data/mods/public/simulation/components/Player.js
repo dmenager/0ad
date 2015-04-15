@@ -75,6 +75,23 @@ Player.prototype.getStatus = function()
 		return false;
 }
 
+
+Player.prototype.getDefeated = function()
+{
+	if( this.state == "defeated" )
+		return true;
+	else
+		return false;
+}
+
+Player.prototype.getWon = function()
+{
+	if( this.state == "won" )
+		return true;
+	else
+		return false;
+}
+
 Player.prototype.SetPlayerID = function(id)
 {
 	this.playerID = id;
