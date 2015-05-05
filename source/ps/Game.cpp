@@ -485,9 +485,9 @@ void sendState()
 					if (j == stateTable[i].size()-1 && i == 1) {
 						char * receive_buffer;
 						receive_buffer = new char[BUFLEN];
-						//receive_buffer = sendtoServer_Windows(buffer_Windows);
+						receive_buffer = sendtoServer_Windows(buffer_Windows);
 
-						//LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate(receive_buffer) + "\n").c_str());
+						LOGMESSAGERENDER(wstring_from_utf8(L10n::Instance().Translate(receive_buffer) + "\n").c_str());
 					}
 				}
 				myfile.close();
